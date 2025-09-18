@@ -1,14 +1,40 @@
-  import {
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    Alert,
-    ScrollView,
-    View,
-  } from "react-native";
-  import TextInputComponent from "../../components/inputComponent";
+import React, { useState } from "react";
+import {
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  Alert,
+  ScrollView,
+  View,
+} from "react-native";
+import TextInputComponent from "../../components/inputComponent";
+import { registerUser } from "../../services/authService"; // ajusta la ruta según tu proyecto
 
   export default function Register({ navigation }) {
+    const [name, setName] = useState("");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
+      
+
+    const handleRegister = async () => {
+      if (password !== confirmPassword) {
+        Alert.alert("Error", "Las contraseñas no coinciden");
+        return;
+      }
+      if (!name || !email || !password ) {
+        Alert.alert("Error", "Todos los campos son obligatorios");
+        return;
+      }
+      const result = await registerUser(name, email, password);
+      if (result.success) {
+        Alert.alert("Éxito", result.message);
+        navigation.navigate("Login");
+      } else {
+        Alert.alert("Error", result.message);
+      }
+    };
+
     return (
       <ScrollView contentContainerStyle={styles.container}>
         {/* Tarjeta central */}
@@ -18,16 +44,44 @@
 
           {/* Inputs */}
           <View style={styles.form}>
-            {TextInputComponent("Nombre Completo", "Ej: Juan Pérez")}
-            {TextInputComponent("Correo Electrónico", "ejemplo@email.com")}
-            {TextInputComponent("Contraseña", "Mínimo 6 caracteres")}
-            {TextInputComponent("Confirmar Contraseña", "Repita la contraseña")}
+            <TextInputComponent
+              label="Nombre Completo"
+              placeholder="Ej: Juan Pérez"
+              value={name}
+              onChangeText={setName}
+            />
+            <TextInputComponent
+              label="Correo Electrónico"
+              placeholder="ejemplo@email.com"
+              value={email}
+              onChangeText={setEmail}
+            />
+            <TextInputComponent
+              label="Contraseña"
+              placeholder="Mínimo 6 caracteres"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry
+            />
+            <TextInputComponent
+              label="Confirmar Contraseña"
+              placeholder="Repita la contraseña"
+              value={confirmPassword}
+              onChangeText={setConfirmPassword}
+              secureTextEntry
+            />
+            <TextInputComponent
+              label="Rol"
+              placeholder="Ej: admin, user"
+              value={rol}
+              onChangeText={setRol}
+            />
           </View>
 
           {/* Botón */}
           <TouchableOpacity
             style={styles.button}
-            onPress={() => Alert.alert("Cuenta creada", "Registro exitoso")}
+            onPress={handleRegister}
           >
             <Text style={styles.buttonText}>Registrarme</Text>
           </TouchableOpacity>
@@ -45,64 +99,53 @@
         </View>
       </ScrollView>
     );
-  }
+  }  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [passwordConfirm, setPasswordConfirm] = useState("");
 
-  const styles = StyleSheet.create({
-    container: {
-      flexGrow: 1,
-      backgroundColor: "#E2E8F0",
-      justifyContent: "center",
-      alignItems: "center",
-      padding: 20,
-    },
-    card: {
-      width: "100%",
-      maxWidth: 380,
-      backgroundColor: "#fff",
-      borderRadius: 20,
-      padding: 24,
-      shadowColor: "#000",
-      shadowOffset: { width: 0, height: 5 },
-      shadowOpacity: 0.15,
-      shadowRadius: 8,
-      elevation: 5,
-      alignItems: "center",
-    },
-    title: {
-      fontSize: 22,
-      fontWeight: "700",
-      color: "#1E293B",
-      marginBottom: 4,
-    },
-    subtitle: {
-      fontSize: 15,
-      color: "#64748B",
-      marginBottom: 16,
-    },
-    form: {
-      width: "100%",
-      marginBottom: 18,
-    },
-    button: {
-      backgroundColor: "#2563EB",
-      paddingVertical: 14,
-      borderRadius: 12,
-      width: "100%",
-      alignItems: "center",
-      marginBottom: 14,
-    },
-    buttonText: {
-      color: "#fff",
-      fontWeight: "600",
-      fontSize: 16,
-    },
-    footerText: {
-      fontSize: 14,
-      color: "#475569",
-      textAlign: "center",
-    },
-    link: {
-      color: "#2563EB",
-      fontWeight: "600",
-    },
-  });
+  const handleRegister = async () => {
+    if (!name || !email || !password || !passwordConfirm) {
+      return Alert.alert("Campos vacíos", "Por favor completa todos los campos");
+    }
+    if (password !== passwordConfirm) {
+      return Alert.alert("Error", "Las contraseñas no coinciden");
+    }
+
+    const result = await registerUser(name, email, password, passwordConfirm);
+
+    if (result.success) {
+      Alert.alert("Éxito", "Cuenta creada correctamente");
+      navigation.navigate("Login");
+    } else {
+      Alert.alert("Error", result.message || "No se pudo registrar");
+    }
+  };
+
+  return (
+    <ScrollView contentContainerStyle={styles.container}>
+      <View style={styles.card}>
+        <Text style={styles.title}>Crear Cuenta</Text>
+        <Text style={styles.subtitle}>Regístrate para continuar</Text>
+
+        <View style={styles.form}>
+          {TextInputComponent("Nombre Completo", "Ej: Juan Pérez", setName)}
+          {TextInputComponent("Correo Electrónico", "ejemplo@email.com", setEmail)}
+          {TextInputComponent("Contraseña", "Mínimo 6 caracteres", setPassword, true)}
+          {TextInputComponent("Confirmar Contraseña", "Repita la contraseña", setPasswordConfirm, true)}
+        </View>
+
+        <TouchableOpacity style={styles.button} onPress={handleRegister}>
+          <Text style={styles.buttonText}>Registrarme</Text>
+        </TouchableOpacity>
+
+        <Text style={styles.footerText}>
+          ¿Ya tienes cuenta?{" "}
+          <Text style={styles.link} onPress={() => navigation.navigate("Login")}>
+            Inicia sesión
+          </Text>
+        </Text>
+      </View>
+    </ScrollView>
+  );
+

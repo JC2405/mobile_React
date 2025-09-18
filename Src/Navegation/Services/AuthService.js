@@ -25,3 +25,23 @@ export const loginUser = async (email, password) => {
     };
   }
 };
+
+
+
+
+export const registerUser = async (name, email, password) => {
+    try {
+        const response = await api.post("api/register", { name, email, password });
+        console.log("Respuesta del registro", response.data);
+        return { success: true, message: response.data.message, user: response.data.user };
+    } catch (e) {
+        console.log(
+            "Error al registrar usuario",
+            e.response ? e.response.data : e.message,
+        );
+        return {
+            success: false,
+            message: e.response ? e.response.data : "Error de conexión",
+        };
+    }
+};
