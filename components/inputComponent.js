@@ -1,15 +1,18 @@
 import { StyleSheet, Text, View, TextInput } from 'react-native';
 
-export default function TextInputComponent(label, content){
+export default function TextInputComponent({label, placeholder, value, onChangeText, secureTextEntry = false}){
     return(
         <View style={styles.inputContainer}>
             <Text style={styles.label}>{label}</Text>
-            <TextInput 
+            <TextInput
                 style={styles.input}
-                placeholder={content}
+                placeholder={placeholder}
                 placeholderTextColor="#aaa"
                 autoCapitalize="none"
                 autoCorrect={false}
+                value={value}
+                onChangeText={onChangeText}
+                secureTextEntry={secureTextEntry}
             />
         </View>
     );

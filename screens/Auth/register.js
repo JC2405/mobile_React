@@ -15,6 +15,7 @@ import { registerUser } from "../../Src/Navegation/Services/AuthService";
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
+    const [rol, setRol] = useState("paciente");
       
 
     const handleRegister = async () => {

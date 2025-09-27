@@ -21,19 +21,41 @@ export default function Login({ navigation }) {
   const handleLogin = async (email, password) => {
     setLoading(true);
     try {
+      console.log("🔄 Iniciando handleLogin con:", { email, password });
       const result = await loginUser(email, password);
+      console.log("📊 Resultado del loginUser:", result);
 
       if (result.success) {
+        console.log("✅ Login exitoso, guardando token:", result.token);
         await login(result.token); // ✅ guarda en contexto y AsyncStorage
-        Alert.alert("Inicio de sesión exitoso", "Bienvenido");
+        console.log("✅ Token guardado, mostrando alerta");
+        Alert.alert(
+          "Inicio de sesión exitoso",
+          "Bienvenido",
+          [
+            {
+              text: "OK",
+              onPress: () => {
+                console.log("🔄 Usuario presionó OK, navegando a pantalla principal");
+                // La navegación automática debería funcionar, pero forzamos un refresh
+                navigation.reset({
+                  index: 0,
+                  routes: [{ name: 'Main' }],
+                });
+              }
+            }
+          ]
+        );
+        console.log("✅ Alerta mostrada");
       } else {
+        console.log("❌ Login fallido:", result.message);
         Alert.alert(
           "Error al iniciar sesión",
           result.message || "Ocurrió un error al iniciar la sesión"
         );
       }
     } catch (e) {
-      console.log("Error inesperado en login: ", e);
+      console.log("❌ Error inesperado en login: ", e);
       Alert.alert("Error", "Ocurrió un error inesperado");
     } finally {
       setLoading(false);
@@ -65,7 +87,10 @@ export default function Login({ navigation }) {
 
         <TouchableOpacity
           style={styles.button}
-          onPress={() => handleLogin(email, password)}
+          onPress={() => {
+            console.log("🔘 Botón presionado con datos:", { email, password });
+            handleLogin(email, password);
+          }}
           disabled={loading}
         >
           <Text style={styles.buttonText}>

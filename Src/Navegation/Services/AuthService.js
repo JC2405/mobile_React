@@ -1,39 +1,53 @@
 import api from "./Conexion";
 
 export const loginUser = async (email, password) => {
-  try {
-    const response = await api.post("/login", { email, password });
-    const token = response.data.token;
-    console.log("Respuesta del servidor:", response.data);
+   try {
+     console.log("🔄 Intentando login con:", { email, password });
+     const response = await api.post("/login", { email, password });
+     console.log("✅ Respuesta del servidor:", response.data);
+     console.log("📊 Status:", response.status);
 
-    if (!token) {
-      return { success: false, message: "No se recibió token en la respuesta" };
-    }
+     const accessToken = response.data.access_token;
+     console.log("🔑 Token recibido:", accessToken ? "SÍ" : "NO");
 
-    return { success: true, token };
-  } catch (error) {
-    console.error(
-      "Error al iniciar sesión: ",
-      error.response ? error.response.data : error.message
-    );
+     if (!accessToken) {
+       console.error("❌ No se recibió token en la respuesta");
+       return { success: false, message: "No se recibió token en la respuesta" };
+     }
 
-    return {
-      success: false,
-      message: error.response
-        ? error.response.data.message
-        : "Error de conexión",
-    };
-  }
-};
+     console.log("✅ Login exitoso, retornando token");
+     return {
+       success: true,
+       token: accessToken,
+       user: response.data.user || null
+     };
+   } catch (error) {
+     console.error("❌ Error en login:", error);
+     console.error("📊 Error response:", error.response?.data);
+     console.error("📊 Error status:", error.response?.status);
+     console.error("📊 Error message:", error.message);
+
+     return {
+       success: false,
+       message: error.response
+         ? error.response.data.message || "Error del servidor"
+         : "Error de conexión",
+     };
+   }
+ };
 
 
 
 
 export const registerUser = async (name, email, password) => {
     try {
-        const response = await api.post("api/register", { name, email, password });
+        const response = await api.post("/crearUsuarioPaciente", { name, email, password });
         console.log("Respuesta del registro", response.data);
-        return { success: true, message: response.data.message, user: response.data.user };
+        return {
+            success: true,
+            message: response.data.message || "Usuario registrado correctamente",
+            user: response.data.user
+        };
     } catch (e) {
         console.log(
             "Error al registrar usuario",
@@ -41,7 +55,7 @@ export const registerUser = async (name, email, password) => {
         );
         return {
             success: false,
-            message: e.response ? e.response.data : "Error de conexión",
+            message: e.response ? e.response.data.message || "Error al registrar usuario" : "Error de conexión",
         };
     }
 };
