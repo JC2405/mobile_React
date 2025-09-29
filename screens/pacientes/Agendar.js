@@ -1,11 +1,6 @@
 import React from 'react';
-import { View, Text } from 'react-native';
+import CrearCita from './CrearCita';
 
-
-export default function Agendar() {
-  return (
-    <View style={{ flex:1, alignItems:'center', justifyContent:'center' }}>
-      <Text>Agendar</Text>
-    </View>
-  );
+export default function Agendar({ navigation }) {
+  return <CrearCita navigation={navigation} />;
 }

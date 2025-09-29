@@ -25,28 +25,92 @@ export default function Login({ navigation }) {
       const result = await loginUser(email, password);
       console.log("📊 Resultado del loginUser:", result);
 
+      // 🔍 DEBUG: Información completa del resultado
+      console.log("🔍 DEBUG - Información del usuario en login:", result.user);
+      console.log("🔍 DEBUG - Rol del usuario en login:", result.user?.rol);
+      console.log("🔍 DEBUG - ID del rol en login:", result.user?.idrol);
+
       if (result.success) {
         console.log("✅ Login exitoso, guardando token:", result.token);
-        await login(result.token); // ✅ guarda en contexto y AsyncStorage
+        console.log("🔍 DEBUG - Antes de guardar en contexto, información del usuario:", result.user);
+        await login(result.token, result.user); // ✅ guarda en contexto y AsyncStorage
         console.log("✅ Token guardado, mostrando alerta");
         Alert.alert(
           "Inicio de sesión exitoso",
-          "Bienvenido",
+          `Bienvenido - Guard: ${result.user.guard} - Type: ${result.user.user_type}`,
           [
             {
               text: "OK",
               onPress: () => {
                 console.log("🔄 Usuario presionó OK, navegando a pantalla principal");
-                // La navegación automática debería funcionar, pero forzamos un refresh
+                console.log("🔍 DEBUG - Navegando a ruta:", navigationRoute);
+                console.log("🔍 DEBUG - Información completa del usuario:", JSON.stringify(result.user, null, 2));
+                // Navegación basada en guard
                 navigation.reset({
                   index: 0,
-                  routes: [{ name: 'Main' }],
+                  routes: [{ name: navigationRoute }],
                 });
               }
             }
           ]
         );
         console.log("✅ Alerta mostrada");
+
+        // 🔍 DEBUG: Determinar navegación basada en guard (método más directo)
+        console.log("🔍 DEBUG - Guard del usuario:", result.user?.guard);
+        console.log("🔍 DEBUG - User type del usuario:", result.user?.user_type);
+
+        // ✅ NAVEGACIÓN BASADA EN ROL_ID Y GUARD
+        let navigationRoute = 'Main'; // Default para pacientes
+
+        if (result.user) {
+          console.log("🔍 DEBUG - Analizando usuario para navegación:", result.user);
+          
+          // Método 1: Verificar por rol_id (más confiable según tu estructura)
+          const rolId = result.user.rol_id || result.user.idrol;
+          console.log("🔍 DEBUG - rol_id detectado:", rolId);
+          
+          if (rolId === 1 || rolId === '1') {
+            console.log("🔍 DEBUG - rol_id=1 (admin), navegando a AdminHome");
+            navigationRoute = 'AdminHome';
+          } else if (rolId === 2 || rolId === '2') {
+            console.log("🔍 DEBUG - rol_id=2 (doctor), navegando a DoctorHome");
+            navigationRoute = 'DoctorHome';
+          } else if (rolId === 3 || rolId === '3') {
+            console.log("🔍 DEBUG - rol_id=3 (paciente), navegando a Main");
+            navigationRoute = 'Main';
+          }
+          
+          // Método 2: Backup por guard
+          else if (result.user.guard === 'api_admin') {
+            console.log("🔍 DEBUG - Guard es api_admin, navegando a AdminHome");
+            navigationRoute = 'AdminHome';
+          } else if (result.user.guard === 'api_doctores') {
+            console.log("🔍 DEBUG - Guard es api_doctores, navegando a DoctorHome");
+            navigationRoute = 'DoctorHome';
+          } else if (result.user.guard === 'api_usuarios') {
+            console.log("🔍 DEBUG - Guard es api_usuarios, navegando a Main");
+            navigationRoute = 'Main';
+          }
+          
+          // Método 3: Backup por rol en texto
+          else {
+            const userRol = result.user.rol ? String(result.user.rol).toLowerCase() : '';
+            console.log("🔍 DEBUG - Rol en texto:", userRol);
+            
+            if (userRol === 'admin') {
+              console.log("🔍 DEBUG - Rol texto 'admin', navegando a AdminHome");
+              navigationRoute = 'AdminHome';
+            } else if (userRol === 'doctor') {
+              console.log("🔍 DEBUG - Rol texto 'doctor', navegando a DoctorHome");
+              navigationRoute = 'DoctorHome';
+            } else if (userRol === 'paciente') {
+              console.log("🔍 DEBUG - Rol texto 'paciente', navegando a Main");
+              navigationRoute = 'Main';
+            }
+          }
+        }
+
       } else {
         console.log("❌ Login fallido:", result.message);
         Alert.alert(

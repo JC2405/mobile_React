@@ -46,31 +46,110 @@ export const cambiarEstadoCita = async (citaId, estado) => {
 };
 
 export const obtenerEspecialidades = async () => {
-  try {
-    console.log("🔄 Obteniendo especialidades");
-    const response = await api.get("/listarEspecialidades");
-    console.log("✅ Especialidades obtenidas:", response.data);
-    return { success: true, especialidades: response.data };
-  } catch (error) {
-    console.error("❌ Error al obtener especialidades:", error.response?.data || error.message);
-    return {
-      success: false,
-      message: error.response?.data?.message || "Error al obtener especialidades",
-    };
-  }
-};
+   try {
+     console.log("🔄 Obteniendo especialidades");
+     const response = await api.get("/listarEspecialidades");
+     console.log("📡 Raw response from specialties API:", response);
+
+     // Handle different response formats
+     let especialidadesData = [];
+     if (response.data) {
+       if (response.data.data) {
+         // Laravel controller format: { success: true, data: [...] }
+         especialidadesData = response.data.data;
+       } else if (Array.isArray(response.data)) {
+         // Direct array format: [...]
+         especialidadesData = response.data;
+       } else {
+         console.warn("⚠️ Unexpected response format:", response.data);
+         especialidadesData = [];
+       }
+     }
+
+     console.log("✅ Datos de especialidades procesados:", especialidadesData);
+     console.log("✅ Número de especialidades:", especialidadesData.length);
+     return { success: true, especialidades: especialidadesData };
+   } catch (error) {
+     console.error("❌ Error al obtener especialidades:", error);
+     console.error("❌ Error response:", error.response);
+     console.error("❌ Error status:", error.response?.status);
+     return {
+       success: false,
+       message: error.response?.data?.message || "Error al obtener especialidades",
+       especialidades: []
+     };
+   }
+ };
 
 export const obtenerDoctor = async (doctorId) => {
-  try {
-    console.log("🔄 Obteniendo doctor:", doctorId);
-    const response = await api.get(`/doctor/${doctorId}`);
-    console.log("✅ Doctor obtenido:", response.data);
-    return { success: true, doctor: response.data };
-  } catch (error) {
-    console.error("❌ Error al obtener doctor:", error.response?.data || error.message);
-    return {
-      success: false,
-      message: error.response?.data?.message || "Error al obtener doctor",
-    };
-  }
-};
+   try {
+     console.log("🔄 Obteniendo doctor:", doctorId);
+     const response = await api.get(`/doctor/${doctorId}`);
+     console.log("✅ Doctor obtenido:", response.data);
+     return { success: true, doctor: response.data };
+   } catch (error) {
+     console.error("❌ Error al obtener doctor:", error.response?.data || error.message);
+     return {
+       success: false,
+       message: error.response?.data?.message || "Error al obtener doctor",
+     };
+   }
+ };
+
+export const obtenerConteoCitasPorPaciente = async (pacienteId) => {
+   try {
+     console.log("🔄 Obteniendo conteo de citas para paciente:", pacienteId);
+     const response = await api.get(`/citasPorPaciente/${pacienteId}`);
+     console.log("📡 Raw response from API:", response);
+     const conteo = response.data ? response.data.length : 0;
+     console.log("✅ Datos de citas recibidos:", response.data);
+     console.log("✅ Conteo calculado:", conteo);
+     return { success: true, conteo };
+   } catch (error) {
+     console.error("❌ Error al obtener conteo de citas:", error);
+     console.error("❌ Error response:", error.response);
+     console.error("❌ Error status:", error.response?.status);
+     return {
+       success: false,
+       message: error.response?.data?.message || "Error al obtener conteo de citas",
+       conteo: 0
+     };
+   }
+ };
+
+export const obtenerConteoEspecialidades = async () => {
+    try {
+      console.log("🔄 Obteniendo conteo de especialidades");
+      const response = await api.get("/listarEspecialidades");
+      console.log("📡 Raw response from specialties API:", response);
+
+      // Handle different response formats
+      let especialidadesData = [];
+      if (response.data) {
+        if (response.data.data) {
+          // Laravel controller format: { success: true, data: [...] }
+          especialidadesData = response.data.data;
+        } else if (Array.isArray(response.data)) {
+          // Direct array format: [...]
+          especialidadesData = response.data;
+        } else {
+          console.warn("⚠️ Unexpected response format:", response.data);
+          especialidadesData = [];
+        }
+      }
+
+      const conteo = especialidadesData.length;
+      console.log("✅ Datos de especialidades recibidos:", especialidadesData);
+      console.log("✅ Conteo calculado:", conteo);
+      return { success: true, conteo };
+    } catch (error) {
+      console.error("❌ Error al obtener conteo de especialidades:", error);
+      console.error("❌ Error response:", error.response);
+      console.error("❌ Error status:", error.response?.status);
+      return {
+        success: false,
+        message: error.response?.data?.message || "Error al obtener conteo de especialidades",
+        conteo: 0
+      };
+    }
+  };

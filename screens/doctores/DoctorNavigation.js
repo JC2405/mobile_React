@@ -1,17 +1,16 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons, Feather } from '@expo/vector-icons';
-import MainStack from './Stack/MainStack';
-import { CitasStack } from './Stack/CitasStack';
-import { EspecialidadesStack } from './Stack/EspecialidadStack';
-import { AgendarStack } from './Stack/AgendarStack';
-import { PerfilStack } from './Stack/PerfilStack';
+import DoctorHome from './DoctorHome';
+import DoctorCitas from './DoctorCitas';
+import DoctorPerfil from './DoctorPerfil';
+import DoctorHorarios from './DoctorHorarios';
 
 const Tab = createBottomTabNavigator();
 
-export default function MainNavegation() {
-  console.log("🔍 DEBUG - ========== MainNavigation ==========");
-  console.log("🔍 DEBUG - MainNavigation: Renderizando navegación de PACIENTE");
+export default function DoctorNavigation() {
+  console.log("🔍 DEBUG - ========== DoctorNavigation ==========");
+  console.log("🔍 DEBUG - DoctorNavigation: Renderizando navegación de DOCTOR");
 
   return (
     <Tab.Navigator
@@ -24,58 +23,47 @@ export default function MainNavegation() {
           paddingBottom: 8,
           paddingTop: 8,
         },
-        tabBarActiveTintColor: '#38BDF8',
+        tabBarActiveTintColor: '#10B981',
         tabBarInactiveTintColor: '#ffffffff',
         headerShown: false,
       }}
     >
       <Tab.Screen
-        name="Inicio"
-        component={MainStack}
+        name="DoctorHome"
+        component={DoctorHome}
         options={{
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="heart" color={color} size={size} />
+            <Ionicons name="medical" color={color} size={size} />
           ),
           tabBarLabel: 'Inicio',
         }}
       />
 
       <Tab.Screen
-        name="Citas"
-        component={CitasStack}
+        name="DoctorCitas"
+        component={DoctorCitas}
         options={{
           tabBarIcon: ({ color, size }) => (
             <Feather name="calendar" size={size} color={color} />
           ),
-          tabBarLabel: 'Citas',
+          tabBarLabel: 'Mis Citas',
         }}
       />
 
       <Tab.Screen
-        name="Agendar"
-        component={AgendarStack}
+        name="DoctorHorarios"
+        component={DoctorHorarios}
         options={{
           tabBarIcon: ({ color, size }) => (
-            <Feather name="share" size={size} color={color} />
+            <Feather name="clock" size={size} color={color} />
           ),
-          tabBarLabel: 'Agendar',
+          tabBarLabel: 'Horarios',
         }}
       />
 
       <Tab.Screen
-        name="Especialidades"
-        component={EspecialidadesStack}
-        options={{
-          tabBarIcon: ({ color, size }) => (
-            <Feather name="star" size={size} color={color} />
-          ),
-          tabBarLabel: 'Especialidades',
-        }}
-      />
-
-      <Tab.Screen
-        name="Perfil"
-        component={PerfilStack}
+        name="DoctorPerfil"
+        component={DoctorPerfil}
         options={{
           tabBarIcon: ({ color, size }) => (
             <Feather name="user" size={size} color={color} />

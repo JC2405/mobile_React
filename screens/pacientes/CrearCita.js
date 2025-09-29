@@ -16,6 +16,7 @@ import {
   obtenerEspecialidades,
   obtenerDoctor
 } from "../../Src/Navegation/Services/CitasService";
+import api from "../../Src/Navegation/Services/Conexion";
 
 export default function CrearCita({ navigation }) {
   const [loading, setLoading] = useState(false);
@@ -43,30 +44,30 @@ export default function CrearCita({ navigation }) {
   const cargarDatosIniciales = async () => {
     try {
       setLoadingData(true);
-      console.log("🔄 Cargando datos de doctores...");
+      console.log("🔄 Cargando datos reales de la base de datos...");
 
-      // Por ahora usamos datos mock hasta que tengamos el endpoint
-      const doctoresMock = [
-        {
-          id: 1,
-          nombre: "Carlos Pérez",
-          especialidad: "Cardiología",
-          email: "carlos.perez@clinica.com",
-          telefono: "555-0123",
-          cubiculo_id: 1
-        },
-        {
-          id: 2,
-          nombre: "María González",
-          especialidad: "Neurología",
-          email: "maria.gonzalez@clinica.com",
-          telefono: "555-0456",
-          cubiculo_id: 2
+      // Get real specialties from database
+      const especialidadesResult = await obtenerEspecialidades();
+      if (especialidadesResult.success) {
+        setEspecialidades(especialidadesResult.especialidades || []);
+        console.log("✅ Especialidades cargadas:", especialidadesResult.especialidades?.length || 0);
+      }
+
+      // Get real doctors from database
+      const doctoresResult = await api.get('/listarDoctores');
+      if (doctoresResult.data) {
+        // Handle different response formats
+        let doctoresData = [];
+        if (Array.isArray(doctoresResult.data)) {
+          doctoresData = doctoresResult.data;
+        } else if (doctoresResult.data.data && Array.isArray(doctoresResult.data.data)) {
+          doctoresData = doctoresResult.data.data;
         }
-      ];
 
-      setDoctores(doctoresMock);
-      console.log("✅ Doctores cargados:", doctoresMock.length);
+        setDoctores(doctoresData);
+        console.log("✅ Doctores cargados:", doctoresData.length);
+        console.log("📋 Doctores:", doctoresData.map(d => `${d.nombre} ${d.apellido} - ${d.especialidad_id}`));
+      }
     } catch (error) {
       console.error("❌ Error al cargar datos:", error);
       Alert.alert("Error", "No se pudieron cargar los datos iniciales");
@@ -84,7 +85,7 @@ export default function CrearCita({ navigation }) {
 
   const handleDoctorChange = (doctorId) => {
     if (doctorId) {
-      // Buscar información del doctor en los datos mock
+      // Buscar información del doctor en los datos reales
       const doctor = doctores.find(d => d.id === parseInt(doctorId));
       if (doctor) {
         setDoctorInfo(doctor);
@@ -96,6 +97,13 @@ export default function CrearCita({ navigation }) {
           cubiculo_id: doctor.cubiculo_id ? doctor.cubiculo_id.toString() : "",
         }));
         console.log("✅ Doctor seleccionado:", doctor);
+        console.log("📋 Doctor data:", {
+          id: doctor.id,
+          nombre: doctor.nombre,
+          apellido: doctor.apellido,
+          especialidad_id: doctor.especialidad_id,
+          cubiculo_id: doctor.cubiculo_id
+        });
       }
     } else {
       setDoctorInfo(null);
@@ -201,7 +209,11 @@ export default function CrearCita({ navigation }) {
             placeholder="Seleccione un doctor"
             value={formData.doctor_id}
             onValueChange={handleDoctorChange}
-            items={doctores}
+            items={doctores.map(doctor => ({
+              ...doctor,
+              nombre: `${doctor.nombre} ${doctor.apellido}`,
+              especialidad: `ID: ${doctor.especialidad_id}`
+            }))}
             displayKey="nombre"
             valueKey="id"
             showEspecialidad={true}
@@ -212,7 +224,10 @@ export default function CrearCita({ navigation }) {
             <View style={styles.doctorInfo}>
               <Text style={styles.infoTitle}>Información del Doctor:</Text>
               <Text style={styles.infoText}>
-                📧 Email: {doctorInfo.email}
+                👨‍⚕️ Nombre: {doctorInfo.nombre} {doctorInfo.apellido}
+              </Text>
+              <Text style={styles.infoText}>
+                📧 Email: {doctorInfo.email || "No disponible"}
               </Text>
               <Text style={styles.infoText}>
                 📞 Teléfono: {doctorInfo.telefono || "No disponible"}
@@ -220,6 +235,11 @@ export default function CrearCita({ navigation }) {
               {doctorInfo.cubiculo_id && (
                 <Text style={styles.infoText}>
                   🏥 Consultorio: {doctorInfo.cubiculo_id}
+                </Text>
+              )}
+              {doctorInfo.especialidad_id && (
+                <Text style={styles.infoText}>
+                  🏥 Especialidad ID: {doctorInfo.especialidad_id}
                 </Text>
               )}
             </View>
