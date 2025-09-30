@@ -22,7 +22,12 @@ export default function AdminEPS() {
   const [modalVisible, setModalVisible] = useState(false);
   const [formData, setFormData] = useState({
     nombre: '',
-    estado: 'activo'
+    codigo: '',
+    nit: '',
+    telefono: '',
+    email: '',
+    direccion: '',
+    estado: 'activa'
   });
 
   // Cargar EPS activas
@@ -100,13 +105,43 @@ export default function AdminEPS() {
   // Crear EPS
   const crearEPS = async () => {
     try {
-      if (!formData.nombre) {
+      // Validaciones
+      if (!formData.nombre.trim()) {
         Alert.alert("Error", "Por favor ingrese el nombre de la EPS");
         return;
       }
 
+      if (!formData.codigo.trim()) {
+        Alert.alert("Error", "Por favor ingrese el código de la EPS");
+        return;
+      }
+
+      if (!formData.nit.trim()) {
+        Alert.alert("Error", "Por favor ingrese el NIT de la EPS");
+        return;
+      }
+
+      if (formData.codigo.length > 10) {
+        Alert.alert("Error", "El código no puede tener más de 10 caracteres");
+        return;
+      }
+
+      if (formData.nit.length > 20) {
+        Alert.alert("Error", "El NIT no puede tener más de 20 caracteres");
+        return;
+      }
+
+      if (formData.telefono && formData.telefono.length > 20) {
+        Alert.alert("Error", "El teléfono no puede tener más de 20 caracteres");
+        return;
+      }
+
+      if (formData.email && !formData.email.includes('@')) {
+        Alert.alert("Error", "Por favor ingrese un email válido");
+        return;
+      }
+
       console.log("🔄 AdminEPS: Creando EPS:", formData);
-      // Aquí usarías el endpoint POST /eps del apiResource
       const response = await AdminEPSService.crearEPS(formData);
 
       if (response.success) {
@@ -127,7 +162,12 @@ export default function AdminEPS() {
   const resetForm = () => {
     setFormData({
       nombre: '',
-      estado: 'activo'
+      codigo: '',
+      nit: '',
+      telefono: '',
+      email: '',
+      direccion: '',
+      estado: 'activa'
     });
   };
 
@@ -225,7 +265,95 @@ export default function AdminEPS() {
                   value={formData.nombre}
                   onChangeText={(text) => setFormData({...formData, nombre: text})}
                   placeholder="Ej: Nueva EPS, SURA, Sanitas..."
+                  maxLength={255}
                 />
+              </View>
+
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>Código *</Text>
+                <TextInput
+                  style={styles.input}
+                  value={formData.codigo}
+                  onChangeText={(text) => setFormData({...formData, codigo: text})}
+                  placeholder="Código único de la EPS"
+                  maxLength={10}
+                  autoCapitalize="characters"
+                />
+              </View>
+
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>NIT *</Text>
+                <TextInput
+                  style={styles.input}
+                  value={formData.nit}
+                  onChangeText={(text) => setFormData({...formData, nit: text})}
+                  placeholder="Número de identificación tributaria"
+                  maxLength={20}
+                  keyboardType="numeric"
+                />
+              </View>
+
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>Teléfono</Text>
+                <TextInput
+                  style={styles.input}
+                  value={formData.telefono}
+                  onChangeText={(text) => setFormData({...formData, telefono: text})}
+                  placeholder="Número de teléfono"
+                  maxLength={20}
+                  keyboardType="phone-pad"
+                />
+              </View>
+
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>Email</Text>
+                <TextInput
+                  style={styles.input}
+                  value={formData.email}
+                  onChangeText={(text) => setFormData({...formData, email: text})}
+                  placeholder="correo@empresa.com"
+                  maxLength={255}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                />
+              </View>
+
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>Dirección</Text>
+                <TextInput
+                  style={[styles.input, styles.textArea]}
+                  value={formData.direccion}
+                  onChangeText={(text) => setFormData({...formData, direccion: text})}
+                  placeholder="Dirección completa de la EPS"
+                  multiline
+                  numberOfLines={3}
+                />
+              </View>
+
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>Estado *</Text>
+                <View style={styles.estadoOptions}>
+                  {[
+                    { value: 'activa', label: 'Activa' },
+                    { value: 'inactiva', label: 'Inactiva' }
+                  ].map((estado) => (
+                    <TouchableOpacity
+                      key={estado.value}
+                      style={[
+                        styles.estadoOption,
+                        formData.estado === estado.value && styles.estadoOptionSelected
+                      ]}
+                      onPress={() => setFormData({...formData, estado: estado.value})}
+                    >
+                      <Text style={[
+                        styles.estadoOptionText,
+                        formData.estado === estado.value && styles.estadoOptionTextSelected
+                      ]}>
+                        {estado.label}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
               </View>
 
               <TouchableOpacity
@@ -411,6 +539,36 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     fontSize: 16,
     backgroundColor: '#fff',
+  },
+  textArea: {
+    height: 80,
+    textAlignVertical: 'top',
+  },
+  estadoOptions: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  estadoOption: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#d1d5db',
+    backgroundColor: '#fff',
+    flex: 1,
+    alignItems: 'center',
+  },
+  estadoOptionSelected: {
+    backgroundColor: '#3B82F6',
+    borderColor: '#3B82F6',
+  },
+  estadoOptionText: {
+    fontSize: 14,
+    color: '#374151',
+    fontWeight: '500',
+  },
+  estadoOptionTextSelected: {
+    color: '#fff',
   },
   submitButton: {
     backgroundColor: '#3B82F6',

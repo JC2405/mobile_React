@@ -70,8 +70,29 @@ export default function AdminHorarios() {
   // Crear horario
   const crearHorario = async () => {
     try {
-      if (!formData.doctor_id || !formData.hora_inicio || !formData.hora_fin) {
-        Alert.alert("Error", "Por favor complete todos los campos obligatorios");
+      if (!formData.doctor_id) {
+        Alert.alert("Error", "Por favor seleccione un doctor");
+        return;
+      }
+
+      if (!formData.dia_semana) {
+        Alert.alert("Error", "Por favor seleccione un día de la semana");
+        return;
+      }
+
+      if (!formData.hora_inicio) {
+        Alert.alert("Error", "Por favor especifique la hora de inicio");
+        return;
+      }
+
+      if (!formData.hora_fin) {
+        Alert.alert("Error", "Por favor especifique la hora de fin");
+        return;
+      }
+
+      // Validar que la hora de fin sea posterior a la hora de inicio
+      if (formData.hora_inicio >= formData.hora_fin) {
+        Alert.alert("Error", "La hora de fin debe ser posterior a la hora de inicio");
         return;
       }
 
@@ -84,11 +105,28 @@ export default function AdminHorarios() {
         resetForm();
         cargarHorarios();
       } else {
-        Alert.alert("Error", response.message);
+        // Si necesita reautenticación, mostrar mensaje específico
+        if (response.needsReauth) {
+          Alert.alert(
+            "Sesión Expirada",
+            "Su sesión ha expirado. Será redirigido al inicio de sesión.",
+            [
+              {
+                text: "Aceptar",
+                onPress: () => {
+                  // Aquí podrías agregar lógica para cerrar sesión y redirigir al login
+                  console.log("🔄 Redirigiendo al login por sesión expirada");
+                }
+              }
+            ]
+          );
+        } else {
+          Alert.alert("Error", response.message);
+        }
       }
     } catch (error) {
       console.error("❌ AdminHorarios: Error creando horario:", error);
-      Alert.alert("Error", "Error al crear horario");
+      Alert.alert("Error", "Error inesperado al crear horario");
     }
   };
 

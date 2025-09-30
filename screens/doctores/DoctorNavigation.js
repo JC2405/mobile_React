@@ -28,16 +28,7 @@ export default function DoctorNavigation() {
         headerShown: false,
       }}
     >
-      <Tab.Screen
-        name="DoctorHome"
-        component={DoctorHome}
-        options={{
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="medical" color={color} size={size} />
-          ),
-          tabBarLabel: 'Inicio',
-        }}
-      />
+      
 
       <Tab.Screen
         name="DoctorCitas"
@@ -47,17 +38,6 @@ export default function DoctorNavigation() {
             <Feather name="calendar" size={size} color={color} />
           ),
           tabBarLabel: 'Mis Citas',
-        }}
-      />
-
-      <Tab.Screen
-        name="DoctorHorarios"
-        component={DoctorHorarios}
-        options={{
-          tabBarIcon: ({ color, size }) => (
-            <Feather name="clock" size={size} color={color} />
-          ),
-          tabBarLabel: 'Horarios',
         }}
       />
 

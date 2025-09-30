@@ -134,6 +134,61 @@ export const DoctorService = {
       console.error("❌ DoctorService: Error eliminando horario:", error);
       return { success: false, message: error.response?.data?.message || "Error al eliminar horario" };
     }
+  },
+
+  // ==================== ESTADÍSTICAS DEL DOCTOR ====================
+
+  // Obtener estadísticas generales del doctor
+  obtenerEstadisticas: async (doctorId) => {
+    try {
+      console.log("🔄 DoctorService: Obteniendo estadísticas del doctor:", doctorId);
+      const response = await api.get(`/estadisticasDoctor/${doctorId}`);
+      console.log("✅ DoctorService: Estadísticas obtenidas exitosamente");
+      return { success: true, data: response.data };
+    } catch (error) {
+      console.error("❌ DoctorService: Error obteniendo estadísticas:", error);
+      return { success: false, message: error.response?.data?.message || "Error al obtener estadísticas" };
+    }
+  },
+
+  // Obtener citas de hoy del doctor
+  obtenerCitasHoy: async (doctorId) => {
+    try {
+      console.log("🔄 DoctorService: Obteniendo citas de hoy del doctor:", doctorId);
+      const hoy = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+      const response = await api.get(`/citasPorDoctor/${doctorId}?fecha=${hoy}`);
+      console.log("✅ DoctorService: Citas de hoy obtenidas exitosamente");
+      return { success: true, data: response.data };
+    } catch (error) {
+      console.error("❌ DoctorService: Error obteniendo citas de hoy:", error);
+      return { success: false, message: error.response?.data?.message || "Error al obtener citas de hoy" };
+    }
+  },
+
+  // Obtener citas pendientes del doctor
+  obtenerCitasPendientes: async (doctorId) => {
+    try {
+      console.log("🔄 DoctorService: Obteniendo citas pendientes del doctor:", doctorId);
+      const response = await api.get(`/citasPorDoctor/${doctorId}?estado=pendiente`);
+      console.log("✅ DoctorService: Citas pendientes obtenidas exitosamente");
+      return { success: true, data: response.data };
+    } catch (error) {
+      console.error("❌ DoctorService: Error obteniendo citas pendientes:", error);
+      return { success: false, message: error.response?.data?.message || "Error al obtener citas pendientes" };
+    }
+  },
+
+  // Obtener pacientes atendidos del doctor (citas completadas)
+  obtenerPacientesAtendidos: async (doctorId) => {
+    try {
+      console.log("🔄 DoctorService: Obteniendo pacientes atendidos del doctor:", doctorId);
+      const response = await api.get(`/citasPorDoctor/${doctorId}?estado=completada`);
+      console.log("✅ DoctorService: Pacientes atendidos obtenidos exitosamente");
+      return { success: true, data: response.data };
+    } catch (error) {
+      console.error("❌ DoctorService: Error obteniendo pacientes atendidos:", error);
+      return { success: false, message: error.response?.data?.message || "Error al obtener pacientes atendidos" };
+    }
   }
 };
 

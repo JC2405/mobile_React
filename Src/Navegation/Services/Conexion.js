@@ -78,18 +78,25 @@ api.interceptors.response.use(
 
       console.log("🔐 Token inválido o expirado. Datos de sesión limpiados.");
 
-      // Aquí podrías agregar lógica para redirigir al usuario al login
-      // Por ejemplo, emitir un evento o usar navigation
-      // navigation.navigate('Login');
+      // Emitir evento personalizado para manejar logout en la aplicación
+      if (typeof window !== 'undefined' && window.dispatchEvent) {
+        window.dispatchEvent(new CustomEvent('userLoggedOut'));
+      }
 
       // También podrías intentar hacer refresh del token si tienes esa funcionalidad
-      // const refreshResponse = await api.post('/refresh');
-      // if (refreshResponse.success) {
-      //   const newToken = refreshResponse.data.token;
-      //   await AsyncStorage.setItem('userToken', newToken);
-      //   originalRequest.headers.Authorization = `Bearer ${newToken}`;
-      //   return api(originalRequest);
-      // }
+      try {
+        const refreshResponse = await api.post('/refresh');
+        if (refreshResponse.data && refreshResponse.data.token) {
+          const newToken = refreshResponse.data.token;
+          await AsyncStorage.setItem('userToken', newToken);
+
+          // Reintentar la solicitud original con el nuevo token
+          originalRequest.headers.Authorization = `Bearer ${newToken}`;
+          return api(originalRequest);
+        }
+      } catch (refreshError) {
+        console.log("❌ No se pudo refrescar el token:", refreshError);
+      }
     }
     return Promise.reject(error);
   }

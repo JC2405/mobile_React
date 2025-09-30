@@ -425,19 +425,63 @@ export const AdminHorariosService = {
     try {
       console.log("🔄 AdminHorariosService: Creando horario:", horarioData);
 
+      // Validar datos requeridos
+      if (!horarioData.doctor_id) {
+        return { success: false, message: "Debe seleccionar un doctor" };
+      }
+
+      if (!horarioData.dia_semana) {
+        return { success: false, message: "Debe seleccionar un día de la semana" };
+      }
+
+      if (!horarioData.hora_inicio) {
+        return { success: false, message: "Debe especificar la hora de inicio" };
+      }
+
+      if (!horarioData.hora_fin) {
+        return { success: false, message: "Debe especificar la hora de fin" };
+      }
+
       // Map frontend fields to backend fields
       const backendData = {
-        ...horarioData,
-        dia: horarioData.dia_semana // Map dia_semana to dia
+        doctor_id: horarioData.doctor_id,
+        dia: horarioData.dia_semana, // Map dia_semana to dia
+        hora_inicio: horarioData.hora_inicio,
+        hora_fin: horarioData.hora_fin,
+        estado: horarioData.estado || 'activo'
       };
-      delete backendData.dia_semana; // Remove frontend field
+
+      console.log("📤 Enviando datos al backend:", backendData);
 
       const response = await api.post("/crearHorario", backendData);
       console.log("✅ AdminHorariosService: Horario creado exitosamente");
       return { success: true, data: response.data };
     } catch (error) {
       console.error("❌ AdminHorariosService: Error creando horario:", error);
-      return { success: false, message: error.response?.data?.message || "Error al crear horario" };
+
+      // Manejar diferentes tipos de errores
+      if (error.response?.status === 401) {
+        return {
+          success: false,
+          message: "Sesión expirada. Por favor, inicie sesión nuevamente.",
+          needsReauth: true
+        };
+      }
+
+      if (error.response?.status === 422) {
+        const validationErrors = error.response.data.errors;
+        const firstError = validationErrors ? Object.values(validationErrors)[0][0] : "Datos inválidos";
+        return { success: false, message: firstError };
+      }
+
+      if (error.response?.status === 409) {
+        return { success: false, message: error.response.data.error || "Conflicto con horario existente" };
+      }
+
+      return {
+        success: false,
+        message: error.response?.data?.message || "Error al crear horario. Verifique su conexión."
+      };
     }
   }
 };
