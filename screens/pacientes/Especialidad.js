@@ -22,7 +22,7 @@ export default function Especialidad() {
             }
 
             // 🔹 Consumimos directamente la API de especialidades
-            const especialidadesResult = await api.get("/especialidades");
+            const especialidadesResult = await api.get("/listarEspecialidades");
             const especialidadesData = especialidadesResult.data.data || [];
 
             setEspecialidades(especialidadesData);
@@ -70,6 +70,7 @@ export default function Especialidad() {
                     especialidades.map((especialidad) => (
                         <View key={especialidad.id} style={styles.card}>
                             <Text style={styles.cardTitle}>{especialidad.nombre}</Text>
+                            <Text style={styles.cardDescription}>{especialidad.descripcion}</Text>
                         </View>
                     ))
                 ) : (
@@ -143,6 +144,11 @@ const styles = StyleSheet.create({
         fontWeight: '700',
         color: '#0f172a',
         marginBottom: 8,
+    },
+    cardDescription: {
+        fontSize: 14,
+        color: '#64748b',
+        lineHeight: 20,
     },
     emptyState: {
         alignItems: 'center',

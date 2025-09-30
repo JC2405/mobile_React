@@ -3,6 +3,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons, Feather } from '@expo/vector-icons';
 import AdminHome from './adminHome';
 import AdminUsuarios from './AdminUsuarios';
+import AdminRoles from './AdminRoles';
 import AdminDoctores from './AdminDoctores';
 import AdminEspecialidades from './AdminEspecialidades';
 import AdminCitas from './AdminCitas';
@@ -51,6 +52,17 @@ export default function AdminNavigation() {
             <Feather name="users" size={size} color={color} />
           ),
           tabBarLabel: 'ADMIN Usuarios',
+        }}
+      />
+
+      <Tab.Screen
+        name="AdminRoles"
+        component={AdminRoles}
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <Feather name="shield" size={size} color={color} />
+          ),
+          tabBarLabel: 'Roles',
         }}
       />
 

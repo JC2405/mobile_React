@@ -8,9 +8,24 @@ export const AdminRolesService = {
       console.log("🔄 AdminRolesService: Listando roles");
       const response = await api.get("/indexRol");
       console.log("✅ AdminRolesService: Roles listados exitosamente");
-      return { success: true, data: response.data.roles || response.data };
+      console.log("📊 Datos de roles recibidos:", response.data);
+
+      // Handle different response formats
+      let rolesData = [];
+      if (response.data.roles) {
+        rolesData = response.data.roles;
+      } else if (Array.isArray(response.data)) {
+        rolesData = response.data;
+      } else if (response.data.data) {
+        rolesData = response.data.data;
+      } else {
+        rolesData = [];
+      }
+
+      return { success: true, data: rolesData };
     } catch (error) {
       console.error("❌ AdminRolesService: Error listando roles:", error);
+      console.error("❌ Error response:", error.response?.data);
       return { success: false, message: error.response?.data?.message || "Error al listar roles" };
     }
   }
@@ -168,9 +183,23 @@ export const AdminEspecialidadesService = {
       console.log("🔄 AdminEspecialidadesService: Listando especialidades");
       const response = await api.get("/listarEspecialidades");
       console.log("✅ AdminEspecialidadesService: Especialidades listadas exitosamente");
-      return { success: true, data: response.data };
+      console.log("📊 Respuesta completa:", response.data);
+
+      // Extract data array from response
+      let especialidadesData = [];
+      if (response.data.data) {
+        especialidadesData = response.data.data;
+        console.log("📊 Datos extraídos:", especialidadesData);
+      } else if (Array.isArray(response.data)) {
+        especialidadesData = response.data;
+      } else {
+        especialidadesData = [];
+      }
+
+      return { success: true, data: especialidadesData };
     } catch (error) {
       console.error("❌ AdminEspecialidadesService: Error listando especialidades:", error);
+      console.error("❌ Error response:", error.response?.data);
       return { success: false, message: error.response?.data?.message || "Error al listar especialidades" };
     }
   },
@@ -362,9 +391,26 @@ export const AdminHorariosService = {
       console.log("🔄 AdminHorariosService: Listando horarios");
       const response = await api.get("/listarHorarios");
       console.log("✅ AdminHorariosService: Horarios listados exitosamente");
-      return { success: true, data: response.data };
+      console.log("📊 Respuesta completa:", response.data);
+
+      // Extract data array from response
+      let horariosData = [];
+      if (response.data.horarios) {
+        horariosData = response.data.horarios.map(horario => ({
+          ...horario,
+          dia_semana: horario.dia // Map dia to dia_semana for frontend
+        }));
+        console.log("📊 Datos extraídos:", horariosData);
+      } else if (Array.isArray(response.data)) {
+        horariosData = response.data;
+      } else {
+        horariosData = [];
+      }
+
+      return { success: true, data: horariosData };
     } catch (error) {
       console.error("❌ AdminHorariosService: Error listando horarios:", error);
+      console.error("❌ Error response:", error.response?.data);
       return { success: false, message: error.response?.data?.message || "Error al listar horarios" };
     }
   },
@@ -373,7 +419,15 @@ export const AdminHorariosService = {
   crearHorario: async (horarioData) => {
     try {
       console.log("🔄 AdminHorariosService: Creando horario:", horarioData);
-      const response = await api.post("/crearHorario", horarioData);
+
+      // Map frontend fields to backend fields
+      const backendData = {
+        ...horarioData,
+        dia: horarioData.dia_semana // Map dia_semana to dia
+      };
+      delete backendData.dia_semana; // Remove frontend field
+
+      const response = await api.post("/crearHorario", backendData);
       console.log("✅ AdminHorariosService: Horario creado exitosamente");
       return { success: true, data: response.data };
     } catch (error) {

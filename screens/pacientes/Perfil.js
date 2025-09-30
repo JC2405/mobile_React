@@ -48,7 +48,18 @@ export default function Perfil() {
         } catch (error) {
             console.error('❌ Error al obtener perfil:', error);
             console.error('❌ Error response:', error.response);
-            Alert.alert('Error', 'No se pudo cargar la información del perfil');
+
+            // More specific error messages
+            let errorMessage = 'No se pudo cargar la información del perfil';
+            if (error.response?.status === 401) {
+                errorMessage = 'Sesión expirada. Por favor inicia sesión nuevamente.';
+            } else if (error.response?.status === 403) {
+                errorMessage = 'No tienes permisos para ver este perfil.';
+            } else if (error.response?.status >= 500) {
+                errorMessage = 'Error del servidor. Intenta nuevamente más tarde.';
+            }
+
+            Alert.alert('Error', errorMessage);
         } finally {
             setLoading(false);
         }
@@ -57,16 +68,34 @@ export default function Perfil() {
     const fetchEpsData = async (epsId) => {
         try {
             console.log('🔄 Obteniendo datos de EPS:', epsId);
+            // Try to get EPS data using the correct endpoint
             const response = await api.get(`/eps/${epsId}`);
             console.log('📊 Datos de EPS obtenidos:', response.data);
 
             if (response.data) {
                 setEpsData(response.data);
-                console.log('✅ EPS cargada:', response.data.nombre);
+                console.log('✅ EPS cargada:', response.data.nombre || response.data.name);
             }
         } catch (error) {
             console.error('❌ Error al obtener EPS:', error);
-            setEpsData(null);
+            // If the specific EPS endpoint fails, try to get from the list
+            try {
+                const epsListResponse = await api.get('/eps/activas/list');
+                if (epsListResponse.data) {
+                    const foundEps = epsListResponse.data.find(eps => eps.id === epsId);
+                    if (foundEps) {
+                        setEpsData(foundEps);
+                        console.log('✅ EPS encontrada en lista:', foundEps.nombre || foundEps.name);
+                    } else {
+                        console.log('❌ EPS no encontrada en la lista');
+                        setEpsData(null);
+                    }
+                }
+            } catch (listError) {
+                console.error('❌ Error al obtener lista de EPS:', listError);
+                console.error('❌ No se pudo obtener información de EPS');
+                setEpsData(null);
+            }
         }
     };
 
@@ -74,6 +103,18 @@ export default function Perfil() {
         setRefreshing(true);
         await fetchUserProfile();
         setRefreshing(false);
+    };
+
+    const formatDate = (dateString) => {
+        try {
+            return new Date(dateString).toLocaleDateString('es-CO', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+        } catch (error) {
+            return dateString;
+        }
     };
 
     const getUserTypeLabel = (userType) => {
@@ -102,7 +143,10 @@ export default function Perfil() {
                 {/* Header Card */}
                 <View style={[styles.headerCard, { backgroundColor: getUserTypeColor(userProfile.user_type) }]}>
                     <Text style={styles.userType}>{getUserTypeLabel(userProfile.user_type)}</Text>
-                    <Text style={styles.userName}>{userProfile.name}</Text>
+                    <Text style={styles.userName}>
+                        {userProfile.nombre || userProfile.name || 'Usuario'}
+                        {userProfile.apellido ? ` ${userProfile.apellido}` : ''}
+                    </Text>
                     <Text style={styles.userEmail}>{userProfile.email}</Text>
                 </View>
 
@@ -116,6 +160,44 @@ export default function Perfil() {
                             {getUserTypeLabel(userProfile.user_type)}
                         </Text>
                     </View>
+
+                    {/* Show Usuario model specific fields */}
+                    {userProfile.nombre && (
+                        <View style={styles.infoRow}>
+                            <Text style={styles.label}>Nombre:</Text>
+                            <Text style={styles.value}>{userProfile.nombre}</Text>
+                        </View>
+                    )}
+
+                    {userProfile.apellido && (
+                        <View style={styles.infoRow}>
+                            <Text style={styles.label}>Apellido:</Text>
+                            <Text style={styles.value}>{userProfile.apellido}</Text>
+                        </View>
+                    )}
+
+                    {userProfile.documento_identidad && (
+                        <View style={styles.infoRow}>
+                            <Text style={styles.label}>Documento de Identidad:</Text>
+                            <Text style={styles.value}>{userProfile.documento_identidad}</Text>
+                        </View>
+                    )}
+
+                    {userProfile.fecha_nacimiento && (
+                        <View style={styles.infoRow}>
+                            <Text style={styles.label}>Fecha de Nacimiento:</Text>
+                            <Text style={styles.value}>
+                                {formatDate(userProfile.fecha_nacimiento)}
+                            </Text>
+                        </View>
+                    )}
+
+                    {userProfile.telefono && (
+                        <View style={styles.infoRow}>
+                            <Text style={styles.label}>Teléfono:</Text>
+                            <Text style={styles.value}>{userProfile.telefono}</Text>
+                        </View>
+                    )}
 
                     {/* Doctor-specific information */}
                     {userProfile.user_type === 'doctor' && (
@@ -150,46 +232,59 @@ export default function Perfil() {
                     {/* Patient-specific information */}
                     {userProfile.user_type === 'paciente' && (
                         <>
-                            {userProfile.apellido && (
-                                <View style={styles.infoRow}>
-                                    <Text style={styles.label}>Apellido:</Text>
-                                    <Text style={styles.value}>{userProfile.apellido}</Text>
-                                </View>
-                            )}
-                            {userProfile.telefono && (
-                                <View style={styles.infoRow}>
-                                    <Text style={styles.label}>Teléfono:</Text>
-                                    <Text style={styles.value}>{userProfile.telefono}</Text>
-                                </View>
-                            )}
-                            {userProfile.direccion && (
-                                <View style={styles.infoRow}>
-                                    <Text style={styles.label}>Dirección:</Text>
-                                    <Text style={styles.value}>{userProfile.direccion}</Text>
-                                </View>
-                            )}
                             {userProfile.eps_id && (
                                 <View style={styles.infoRow}>
                                     <Text style={styles.label}>EPS:</Text>
                                     <Text style={styles.value}>
-                                        {epsData ? epsData.nombre : `EPS ${userProfile.eps_id}`}
+                                        {epsData ? (epsData.nombre || epsData.name) : `ID: ${userProfile.eps_id}`}
+                                    </Text>
+                                </View>
+                            )}
+
+                            {/* Show additional Usuario model fields if they exist */}
+                            {userProfile.documento_identidad && (
+                                <View style={styles.infoRow}>
+                                    <Text style={styles.label}>Documento:</Text>
+                                    <Text style={styles.value}>{userProfile.documento_identidad}</Text>
+                                </View>
+                            )}
+
+                            {userProfile.fecha_nacimiento && (
+                                <View style={styles.infoRow}>
+                                    <Text style={styles.label}>Fecha de Nacimiento:</Text>
+                                    <Text style={styles.value}>
+                                        {formatDate(userProfile.fecha_nacimiento)}
                                     </Text>
                                 </View>
                             )}
                         </>
                     )}
 
+                    {/* User ID */}
+                    <View style={styles.infoRow}>
+                        <Text style={styles.label}>ID de Usuario:</Text>
+                        <Text style={styles.value}>{userProfile.id}</Text>
+                    </View>
+
                     {/* Role information */}
                     {userProfile.rol && (
                         <View style={styles.infoRow}>
                             <Text style={styles.label}>Rol:</Text>
-                            <Text style={styles.value}>{userProfile.rol.role || userProfile.rol}</Text>
+                            <Text style={styles.value}>{userProfile.rol.role || userProfile.rol.rol || userProfile.rol}</Text>
                         </View>
                     )}
                     {userProfile.rol_id && (
                         <View style={styles.infoRow}>
-                            <Text style={styles.label}>ID Rol:</Text>
+                            <Text style={styles.label}>ID del Rol:</Text>
                             <Text style={styles.value}>{userProfile.rol_id}</Text>
+                        </View>
+                    )}
+
+                    {/* Guard information */}
+                    {userProfile.guard && (
+                        <View style={styles.infoRow}>
+                            <Text style={styles.label}>Tipo de Autenticación:</Text>
+                            <Text style={styles.value}>{userProfile.guard}</Text>
                         </View>
                     )}
                 </View>

@@ -3,16 +3,21 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // ⚙️ CONFIGURACIÓN DE IP PARA MÓVIL
 // ===========================================
-// Tu IP actual es: 172.20.10.3 (obtenida con ipconfig)
+// Tu IP actual es: 10.2.232.70 (obtenida con ipconfig)
 
 // Opciones según tu entorno de desarrollo:
 // ===========================================
 // 📱 Para EMULADOR ANDROID: http://10.0.2.2:8000/api
-// 📱 Para DISPOSITIVO FÍSICO: http://172.20.10.3:8000/api
+// 📱 Para DISPOSITIVO FÍSICO: http://10.2.232.70:8000/api
 // 🏠 Para REDES DOMÉSTICAS: http://192.168.1.xxx:8000/api
 // 🔧 Para DESARROLLO WEB: http://localhost:8000/api
 
-const URL_BASE = "http://192.168.1.8:8000/api"; 
+// 🔥 SOLUCIÓN TEMPORAL: Usa ngrok para desarrollo móvil
+// 1. Instala ngrok: https://ngrok.com/download
+// 2. Ejecuta: ngrok http 8000
+// 3. Usa la URL que proporcione ngrok (ej: https://abc123.ngrok.io/api)
+
+const URL_BASE = "http://10.137.38.144:8000/api";
 
 // 💡 Para encontrar tu IP:
 // - Windows: Ejecuta 'ipconfig' en terminal
