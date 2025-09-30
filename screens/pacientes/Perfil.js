@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, RefreshControl, Alert } from 'react
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { AuthContext } from '../../Src/Navegation/AuthContext';
 import api from '../../Src/Navegation/Services/Conexion';
+import LogoutComponent from '../../components/LogoutComponent';
 
 export default function Perfil() {
     const { userToken } = useContext(AuthContext);
@@ -314,6 +315,11 @@ export default function Perfil() {
 
             {renderProfileInfo()}
 
+            {/* Botón de Cerrar Sesión */}
+            <View style={styles.logoutSection}>
+                <LogoutComponent navigation={undefined} />
+            </View>
+
             <View style={styles.infoSection}>
                 <Text style={styles.infoTitle}>Información de la Cuenta</Text>
                 <Text style={styles.infoText}>
@@ -424,6 +430,10 @@ const styles = StyleSheet.create({
         textAlign: 'right',
         flex: 1,
         marginLeft: 16,
+    },
+    logoutSection: {
+        padding: 20,
+        paddingTop: 10,
     },
     infoSection: {
         padding: 20,
