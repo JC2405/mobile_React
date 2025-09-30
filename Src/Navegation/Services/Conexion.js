@@ -17,7 +17,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 // 2. Ejecuta: ngrok http 8000
 // 3. Usa la URL que proporcione ngrok (ej: https://abc123.ngrok.io/api)
 
-const URL_BASE = "http://10.137.38.144:8000/api";
+const URL_BASE = "http://10.2.232.70:8000/api";
 
 // 💡 Para encontrar tu IP:
 // - Windows: Ejecuta 'ipconfig' en terminal
@@ -31,7 +31,7 @@ const api = axios.create({
   },
 });
 
-const rutasPublicas = ["/login", "/register", "/crearUsuarioPaciente"];
+const rutasPublicas = ["/login", "/crearUsuarioPaciente"];
 
 api.interceptors.request.use(
   async (config) => {
@@ -71,8 +71,25 @@ api.interceptors.response.use(
       !isRutaPublica
     ) {
       originalRequest._retry = true;
+
+      // Limpiar datos de autenticación
       await AsyncStorage.removeItem("userToken");
-      console.log("Token inválido o expirado. Inicie sesión de nuevo.");
+      await AsyncStorage.removeItem("userData");
+
+      console.log("🔐 Token inválido o expirado. Datos de sesión limpiados.");
+
+      // Aquí podrías agregar lógica para redirigir al usuario al login
+      // Por ejemplo, emitir un evento o usar navigation
+      // navigation.navigate('Login');
+
+      // También podrías intentar hacer refresh del token si tienes esa funcionalidad
+      // const refreshResponse = await api.post('/refresh');
+      // if (refreshResponse.success) {
+      //   const newToken = refreshResponse.data.token;
+      //   await AsyncStorage.setItem('userToken', newToken);
+      //   originalRequest.headers.Authorization = `Bearer ${newToken}`;
+      //   return api(originalRequest);
+      // }
     }
     return Promise.reject(error);
   }

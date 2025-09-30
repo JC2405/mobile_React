@@ -117,36 +117,6 @@ export default function AdminEspecialidades() {
     }
   };
 
-  // Eliminar especialidad
-  const eliminarEspecialidad = (especialidad) => {
-    Alert.alert(
-      "Eliminar Especialidad",
-      `¿Estás seguro de que deseas eliminar la especialidad ${especialidad.nombre}?`,
-      [
-        { text: "Cancelar", style: "cancel" },
-        {
-          text: "Eliminar",
-          style: "destructive",
-          onPress: async () => {
-            try {
-              console.log("🔄 AdminEspecialidades: Eliminando especialidad:", especialidad.id);
-              const response = await AdminEspecialidadesService.eliminarEspecialidad(especialidad.id);
-
-              if (response.success) {
-                Alert.alert("Éxito", "Especialidad eliminada exitosamente");
-                cargarEspecialidades();
-              } else {
-                Alert.alert("Error", response.message);
-              }
-            } catch (error) {
-              console.error("❌ AdminEspecialidades: Error eliminando especialidad:", error);
-              Alert.alert("Error", "Error al eliminar especialidad");
-            }
-          }
-        }
-      ]
-    );
-  };
 
   // Resetear formulario
   const resetForm = () => {
@@ -193,12 +163,6 @@ export default function AdminEspecialidades() {
           onPress={() => abrirModalEditar(item)}
         >
           <Ionicons name="pencil" size={16} color="#fff" />
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.actionButton, styles.deleteButton]}
-          onPress={() => eliminarEspecialidad(item)}
-        >
-          <Ionicons name="trash" size={16} color="#fff" />
         </TouchableOpacity>
       </View>
     </View>
@@ -423,9 +387,6 @@ const styles = StyleSheet.create({
   },
   editButton: {
     backgroundColor: '#F59E0B',
-  },
-  deleteButton: {
-    backgroundColor: '#EF4444',
   },
   emptyContainer: {
     flex: 1,

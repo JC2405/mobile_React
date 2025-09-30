@@ -65,6 +65,75 @@ export const DoctorService = {
       console.error("❌ DoctorService: Error obteniendo cubículo:", error);
       return { success: false, message: error.response?.data?.message || "Error al obtener información del cubículo" };
     }
+  },
+
+  // ==================== GESTIÓN DE PERFIL ====================
+
+  // Obtener perfil del doctor
+  obtenerMiPerfil: async () => {
+    try {
+      console.log("🔄 DoctorService: Obteniendo perfil del doctor");
+      const response = await api.get(`/miPerfil`);
+      console.log("✅ DoctorService: Perfil obtenido exitosamente");
+      return { success: true, data: response.data };
+    } catch (error) {
+      console.error("❌ DoctorService: Error obteniendo perfil:", error);
+      return { success: false, message: error.response?.data?.message || "Error al obtener perfil" };
+    }
+  },
+
+  // ==================== GESTIÓN DE HORARIOS ====================
+
+  // Obtener horarios del doctor
+  obtenerMisHorarios: async () => {
+    try {
+      console.log("🔄 DoctorService: Obteniendo horarios del doctor");
+      const response = await api.get(`/misHorarios`);
+      console.log("✅ DoctorService: Horarios obtenidos exitosamente");
+      return { success: true, data: response.data };
+    } catch (error) {
+      console.error("❌ DoctorService: Error obteniendo horarios:", error);
+      return { success: false, message: error.response?.data?.message || "Error al obtener horarios" };
+    }
+  },
+
+  // Crear nuevo horario
+  crearHorario: async (horarioData) => {
+    try {
+      console.log("🔄 DoctorService: Creando horario:", horarioData);
+      const response = await api.post(`/crearHorario`, horarioData);
+      console.log("✅ DoctorService: Horario creado exitosamente");
+      return { success: true, data: response.data };
+    } catch (error) {
+      console.error("❌ DoctorService: Error creando horario:", error);
+      return { success: false, message: error.response?.data?.message || "Error al crear horario" };
+    }
+  },
+
+  // Actualizar horario
+  actualizarHorario: async (horarioId, horarioData) => {
+    try {
+      console.log("🔄 DoctorService: Actualizando horario:", horarioId, horarioData);
+      const response = await api.put(`/actualizarHorario/${horarioId}`, horarioData);
+      console.log("✅ DoctorService: Horario actualizado exitosamente");
+      return { success: true, data: response.data };
+    } catch (error) {
+      console.error("❌ DoctorService: Error actualizando horario:", error);
+      return { success: false, message: error.response?.data?.message || "Error al actualizar horario" };
+    }
+  },
+
+  // Eliminar horario
+  eliminarHorario: async (horarioId) => {
+    try {
+      console.log("🔄 DoctorService: Eliminando horario:", horarioId);
+      const response = await api.delete(`/eliminarHorario/${horarioId}`);
+      console.log("✅ DoctorService: Horario eliminado exitosamente");
+      return { success: true, data: response.data };
+    } catch (error) {
+      console.error("❌ DoctorService: Error eliminando horario:", error);
+      return { success: false, message: error.response?.data?.message || "Error al eliminar horario" };
+    }
   }
 };
 

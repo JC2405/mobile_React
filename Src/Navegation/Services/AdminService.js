@@ -46,17 +46,22 @@ export const AdminUsuariosService = {
     }
   },
 
-  // Crear nuevo usuario administrador
+  // Crear nuevo usuario
   crearUsuario: async (usuarioData) => {
     try {
       console.log("🔄 AdminUsuariosService: Creando usuario:", usuarioData);
 
-      // Map frontend fields to backend fields for AuthController
+      // Send data directly as expected by backend AuthController@crearUsuario
       const backendData = {
-        name: usuarioData.name,
+        nombre: usuarioData.nombre,
+        apellido: usuarioData.apellido,
+        documento_identidad: usuarioData.documento_identidad,
         email: usuarioData.email,
         password: usuarioData.password,
-        rol: "1" // Fixed role for admin users
+        telefono: usuarioData.telefono || null,
+        fecha_nacimiento: usuarioData.fecha_nacimiento,
+        eps_id: usuarioData.eps_id || null,
+        rol_id: usuarioData.rol_id
       };
 
       const response = await api.post("/register", backendData);
@@ -126,7 +131,7 @@ export const AdminDoctoresService = {
   crearDoctor: async (doctorData) => {
     try {
       console.log("🔄 AdminDoctoresService: Creando doctor:", doctorData);
-      const response = await api.post("/crearDoctor", doctorData);
+      const response = await api.post("/CrearUsuarioDoctor", doctorData);
       console.log("✅ AdminDoctoresService: Doctor creado exitosamente");
       return { success: true, data: response.data };
     } catch (error) {

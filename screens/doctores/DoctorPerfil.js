@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { AuthContext } from '../../Src/Navegation/AuthContext';
+import { DoctorService } from '../../Src/Navegation/Services/DoctorService';
 
 export default function DoctorPerfil({ navigation }) {
   const [refreshing, setRefreshing] = useState(false);
@@ -19,19 +20,33 @@ export default function DoctorPerfil({ navigation }) {
     email: '',
     telefono: '',
     especialidad: '',
-    documento_identidad: '',
   });
 
   const { logout, user } = useContext(AuthContext);
 
   const cargarPerfil = async () => {
     try {
-      // Aquí consumirías el endpoint para obtener info del doctor
       console.log("🔄 Cargando perfil del doctor");
-      // const response = await DoctorService.obtenerPerfil();
-      // setDoctorInfo(response.data);
+      const response = await DoctorService.obtenerMiPerfil();
+
+      if (response.success) {
+        console.log("✅ Perfil cargado exitosamente:", response.data.doctor);
+        const doctor = response.data.doctor;
+
+        setDoctorInfo({
+          nombre: doctor.nombre || '',
+          apellido: doctor.apellido || '',
+          email: doctor.email || '',
+          telefono: doctor.telefono || '',
+          especialidad: doctor.especialidad ? doctor.especialidad.nombre : '',
+        });
+      } else {
+        console.error("❌ Error en respuesta:", response.message);
+        Alert.alert("Error", response.message || "Error al cargar el perfil");
+      }
     } catch (error) {
       console.error("❌ Error cargando perfil:", error);
+      Alert.alert("Error", "Error al cargar el perfil del doctor");
     } finally {
       setRefreshing(false);
     }
@@ -108,11 +123,6 @@ export default function DoctorPerfil({ navigation }) {
           <Text style={styles.infoValue}>{doctorInfo.telefono || 'No registrado'}</Text>
         </View>
 
-        <View style={styles.infoItem}>
-          <Ionicons name="card-outline" size={20} color="#64748b" />
-          <Text style={styles.infoLabel}>Documento:</Text>
-          <Text style={styles.infoValue}>{doctorInfo.documento_identidad || 'No registrado'}</Text>
-        </View>
 
         <View style={styles.infoItem}>
           <Ionicons name="medical-outline" size={20} color="#64748b" />

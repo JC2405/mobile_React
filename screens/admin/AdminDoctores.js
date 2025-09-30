@@ -12,35 +12,40 @@ import {
   ScrollView
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { AdminDoctoresService, AdminEspecialidadesService } from '../../Src/Navegation/Services/AdminService';
+import { Picker } from '@react-native-picker/picker';
+import { AdminDoctoresService, AdminEspecialidadesService, AdminRolesService, AdminCubiculosService } from '../../Src/Navegation/Services/AdminService';
 
 export default function AdminDoctores() {
   const [doctores, setDoctores] = useState([]);
   const [especialidades, setEspecialidades] = useState([]);
+  const [roles, setRoles] = useState([]);
+  const [cubiculos, setCubiculos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [searchText, setSearchText] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
   const [editingDoctor, setEditingDoctor] = useState(null);
   const [formData, setFormData] = useState({
-    name: '',
+    nombre: '',
+    apellido: '',
     email: '',
     password: '',
     telefono: '',
     especialidad_id: '',
-    licencia_medica: '',
-    experiencia_anios: '',
-    educacion: ''
+    cubiculo_id: '',
+    rol_id: '2'
   });
 
-  // Cargar doctores y especialidades
+  // Cargar doctores, especialidades, roles y cubículos
   const cargarDatos = async () => {
     try {
       console.log("🔄 AdminDoctores: Cargando datos");
 
-      const [doctoresRes, especialidadesRes] = await Promise.all([
+      const [doctoresRes, especialidadesRes, rolesRes, cubiculosRes] = await Promise.all([
         AdminDoctoresService.listarDoctores(),
-        AdminEspecialidadesService.listarEspecialidades()
+        AdminEspecialidadesService.listarEspecialidades(),
+        AdminRolesService.listarRoles(),
+        AdminCubiculosService.listarCubiculos()
       ]);
 
       if (doctoresRes.success) {
@@ -53,6 +58,18 @@ export default function AdminDoctores() {
         setEspecialidades(Array.isArray(especialidadesRes.data) ? especialidadesRes.data : []);
       } else {
         setEspecialidades([]);
+      }
+
+      if (rolesRes.success) {
+        setRoles(Array.isArray(rolesRes.data) ? rolesRes.data : []);
+      } else {
+        setRoles([]);
+      }
+
+      if (cubiculosRes.success) {
+        setCubiculos(Array.isArray(cubiculosRes.data) ? cubiculosRes.data : []);
+      } else {
+        setCubiculos([]);
       }
 
       console.log("✅ AdminDoctores: Datos cargados exitosamente");
@@ -85,7 +102,7 @@ export default function AdminDoctores() {
   // Crear doctor
   const crearDoctor = async () => {
     try {
-      if (!formData.name || !formData.email || !formData.password || !formData.especialidad_id) {
+      if (!formData.nombre || !formData.apellido || !formData.email || !formData.password || !formData.especialidad_id || !formData.rol_id) {
         Alert.alert("Error", "Por favor complete todos los campos obligatorios");
         return;
       }
@@ -110,7 +127,7 @@ export default function AdminDoctores() {
   // Actualizar doctor
   const actualizarDoctor = async () => {
     try {
-      if (!formData.name || !formData.email || !formData.especialidad_id) {
+      if (!formData.nombre || !formData.apellido || !formData.email || !formData.especialidad_id) {
         Alert.alert("Error", "Por favor complete los campos obligatorios");
         return;
       }
@@ -125,7 +142,7 @@ export default function AdminDoctores() {
         resetForm();
         cargarDatos();
       } else {
-        Alert.alert("Error", response.message);
+        Alert.alert("Error", response.message || "Error al actualizar doctor");
       }
     } catch (error) {
       console.error("❌ AdminDoctores: Error actualizando doctor:", error);
@@ -133,48 +150,18 @@ export default function AdminDoctores() {
     }
   };
 
-  // Eliminar doctor
-  const eliminarDoctor = (doctor) => {
-    Alert.alert(
-      "Eliminar Doctor",
-      `¿Estás seguro de que deseas eliminar al doctor ${doctor.name}?`,
-      [
-        { text: "Cancelar", style: "cancel" },
-        {
-          text: "Eliminar",
-          style: "destructive",
-          onPress: async () => {
-            try {
-              console.log("🔄 AdminDoctores: Eliminando doctor:", doctor.id);
-              const response = await AdminDoctoresService.eliminarDoctor(doctor.id);
-
-              if (response.success) {
-                Alert.alert("Éxito", "Doctor eliminado exitosamente");
-                cargarDatos();
-              } else {
-                Alert.alert("Error", response.message);
-              }
-            } catch (error) {
-              console.error("❌ AdminDoctores: Error eliminando doctor:", error);
-              Alert.alert("Error", "Error al eliminar doctor");
-            }
-          }
-        }
-      ]
-    );
-  };
 
   // Resetear formulario
   const resetForm = () => {
     setFormData({
-      name: '',
+      nombre: '',
+      apellido: '',
       email: '',
       password: '',
       telefono: '',
       especialidad_id: '',
-      licencia_medica: '',
-      experiencia_anios: '',
-      educacion: ''
+      cubiculo_id: '',
+      rol_id: '2'
     });
   };
 
@@ -189,14 +176,14 @@ export default function AdminDoctores() {
   const abrirModalEditar = (doctor) => {
     setEditingDoctor(doctor);
     setFormData({
-      name: doctor.name || '',
+      nombre: doctor.nombre || '',
+      apellido: doctor.apellido || '',
       email: doctor.email || '',
       password: '', // No mostrar contraseña actual por seguridad
       telefono: doctor.telefono || '',
       especialidad_id: doctor.especialidad_id?.toString() || '',
-      licencia_medica: doctor.licencia_medica || '',
-      experiencia_anios: doctor.experiencia_anios?.toString() || '',
-      educacion: doctor.educacion || ''
+      cubiculo_id: doctor.cubiculo_id?.toString() || '',
+      rol_id: doctor.rol_id?.toString() || ''
     });
     setModalVisible(true);
   };
@@ -205,7 +192,7 @@ export default function AdminDoctores() {
   const renderDoctor = ({ item }) => (
     <View style={styles.doctorItem}>
       <View style={styles.doctorInfo}>
-        <Text style={styles.doctorNombre}>{item.name}</Text>
+        <Text style={styles.doctorNombre}>{item.nombre} {item.apellido}</Text>
         <Text style={styles.doctorEmail}>{item.email}</Text>
         <Text style={styles.doctorEspecialidad}>
           Especialidad: {Array.isArray(especialidades) ? especialidades.find(e => e.id == item.especialidad_id)?.nombre || 'No especificada' : 'No especificada'}
@@ -218,12 +205,6 @@ export default function AdminDoctores() {
           onPress={() => abrirModalEditar(item)}
         >
           <Ionicons name="pencil" size={16} color="#fff" />
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.actionButton, styles.deleteButton]}
-          onPress={() => eliminarDoctor(item)}
-        >
-          <Ionicons name="trash" size={16} color="#fff" />
         </TouchableOpacity>
       </View>
     </View>
@@ -298,9 +279,19 @@ export default function AdminDoctores() {
                 <Text style={styles.label}>Nombre *</Text>
                 <TextInput
                   style={styles.input}
-                  value={formData.name}
-                  onChangeText={(text) => setFormData({...formData, name: text})}
+                  value={formData.nombre}
+                  onChangeText={(text) => setFormData({...formData, nombre: text})}
                   placeholder="Ingrese el nombre"
+                />
+              </View>
+
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>Apellido *</Text>
+                <TextInput
+                  style={styles.input}
+                  value={formData.apellido}
+                  onChangeText={(text) => setFormData({...formData, apellido: text})}
+                  placeholder="Ingrese el apellido"
                 />
               </View>
 
@@ -340,57 +331,33 @@ export default function AdminDoctores() {
 
               <View style={styles.inputGroup}>
                 <Text style={styles.label}>Especialidad *</Text>
-                <View style={styles.pickerContainer}>
-                  <TouchableOpacity
-                    style={styles.pickerButton}
-                    onPress={() => {
-                      // Aquí podrías implementar un picker modal para especialidades
-                      Alert.alert("Seleccionar Especialidad", "Funcionalidad pendiente de implementar");
-                    }}
-                  >
-                    <Text style={formData.especialidad_id ? styles.pickerText : styles.pickerPlaceholder}>
-                      {formData.especialidad_id
-                        ? (Array.isArray(especialidades) ? especialidades.find(e => e.id == formData.especialidad_id)?.nombre || 'Especialidad seleccionada' : 'Especialidad seleccionada')
-                        : 'Seleccionar especialidad'
-                      }
-                    </Text>
-                    <Ionicons name="chevron-down" size={20} color="#64748b" />
-                  </TouchableOpacity>
-                </View>
+                <Picker
+                  selectedValue={formData.especialidad_id}
+                  onValueChange={(value) => setFormData({...formData, especialidad_id: value})}
+                  style={styles.picker}
+                >
+                  <Picker.Item label="Seleccionar especialidad..." value="" />
+                  {Array.isArray(especialidades) && especialidades.map((especialidad) => (
+                    <Picker.Item key={especialidad.id} label={especialidad.nombre} value={especialidad.id.toString()} />
+                  ))}
+                </Picker>
               </View>
 
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>Licencia Médica</Text>
-                <TextInput
-                  style={styles.input}
-                  value={formData.licencia_medica}
-                  onChangeText={(text) => setFormData({...formData, licencia_medica: text})}
-                  placeholder="Ingrese el número de licencia"
-                />
-              </View>
 
               <View style={styles.inputGroup}>
-                <Text style={styles.label}>Años de Experiencia</Text>
-                <TextInput
-                  style={styles.input}
-                  value={formData.experiencia_anios}
-                  onChangeText={(text) => setFormData({...formData, experiencia_anios: text})}
-                  placeholder="Ingrese años de experiencia"
-                  keyboardType="numeric"
-                />
+                <Text style={styles.label}>Cubículo</Text>
+                <Picker
+                  selectedValue={formData.cubiculo_id}
+                  onValueChange={(value) => setFormData({...formData, cubiculo_id: value})}
+                  style={styles.picker}
+                >
+                  <Picker.Item label="Seleccionar cubículo (opcional)..." value="" />
+                  {Array.isArray(cubiculos) && cubiculos.map((cubiculo) => (
+                    <Picker.Item key={cubiculo.id} label={`Cubículo ${cubiculo.numero}`} value={cubiculo.id.toString()} />
+                  ))}
+                </Picker>
               </View>
 
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>Educación</Text>
-                <TextInput
-                  style={[styles.input, styles.textArea]}
-                  value={formData.educacion}
-                  onChangeText={(text) => setFormData({...formData, educacion: text})}
-                  placeholder="Ingrese información educativa"
-                  multiline
-                  numberOfLines={3}
-                />
-              </View>
 
               <TouchableOpacity
                 style={styles.submitButton}
@@ -579,26 +546,9 @@ const styles = StyleSheet.create({
     height: 80,
     textAlignVertical: 'top',
   },
-  pickerContainer: {
-    borderWidth: 1,
-    borderColor: '#d1d5db',
-    borderRadius: 8,
-    backgroundColor: '#fff',
-  },
-  pickerButton: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 12,
-  },
-  pickerText: {
-    fontSize: 16,
+  picker: {
+    height: 50,
     color: '#1e293b',
-  },
-  pickerPlaceholder: {
-    fontSize: 16,
-    color: '#9ca3af',
   },
   submitButton: {
     backgroundColor: '#3B82F6',

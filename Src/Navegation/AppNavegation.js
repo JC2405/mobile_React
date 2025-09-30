@@ -2,6 +2,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import MainNavegation from "./MainNavigation";
 import AuthNavegation from "./AuthNavegation";
 import AdminNavigation from "../../screens/admin/AdminNavigation";
+import DoctorNavigation from "../../screens/doctores/DoctorNavigation";
 import React, { useContext } from "react";
 import { AuthContext, AuthProvider } from "./AuthContext";
 import { View, Text, StyleSheet, ActivityIndicator } from "react-native";
@@ -59,7 +60,8 @@ function AppNavigator() {
          return <AdminNavigation />;
        } else if (user.guard === 'api_doctores') {
          console.log("✅ DEBUG - Guard es api_doctores, mostrando navegación de doctores");
-         return <MainNavegation />; // Por ahora usar Main, después crear navegación específica
+         console.log("🔍 DEBUG - Usando DoctorNavigation para doctores");
+         return <DoctorNavigation />;
        } else if (user.guard === 'api_usuarios') {
          console.log("✅ DEBUG - Guard es api_usuarios, mostrando navegación de paciente");
          return <MainNavegation />;

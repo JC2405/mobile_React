@@ -34,29 +34,9 @@ export default function Login({ navigation }) {
         console.log("✅ Login exitoso, guardando token:", result.token);
         console.log("🔍 DEBUG - Antes de guardar en contexto, información del usuario:", result.user);
         await login(result.token, result.user); // ✅ guarda en contexto y AsyncStorage
-        console.log("✅ Token guardado, mostrando alerta");
-        Alert.alert(
-          "Inicio de sesión exitoso",
-          `Bienvenido - Guard: ${result.user.guard} - Type: ${result.user.user_type}`,
-          [
-            {
-              text: "OK",
-              onPress: () => {
-                console.log("🔄 Usuario presionó OK, navegando a pantalla principal");
-                console.log("🔍 DEBUG - Navegando a ruta:", navigationRoute);
-                console.log("🔍 DEBUG - Información completa del usuario:", JSON.stringify(result.user, null, 2));
-                // Navegación basada en guard
-                navigation.reset({
-                  index: 0,
-                  routes: [{ name: navigationRoute }],
-                });
-              }
-            }
-          ]
-        );
-        console.log("✅ Alerta mostrada");
+        console.log("✅ Token guardado");
 
-        // 🔍 DEBUG: Determinar navegación basada en guard (método más directo)
+        // 🔍 DEBUG: Determinar navegación basada en guard (método más directo) - MOVER ANTES DE LA ALERTA
         console.log("🔍 DEBUG - Guard del usuario:", result.user?.guard);
         console.log("🔍 DEBUG - User type del usuario:", result.user?.user_type);
 
@@ -65,11 +45,11 @@ export default function Login({ navigation }) {
 
         if (result.user) {
           console.log("🔍 DEBUG - Analizando usuario para navegación:", result.user);
-          
+
           // Método 1: Verificar por rol_id (más confiable según tu estructura)
           const rolId = result.user.rol_id || result.user.idrol;
           console.log("🔍 DEBUG - rol_id detectado:", rolId);
-          
+
           if (rolId === 1 || rolId === '1') {
             console.log("🔍 DEBUG - rol_id=1 (admin), navegando a AdminHome");
             navigationRoute = 'AdminHome';
@@ -80,7 +60,7 @@ export default function Login({ navigation }) {
             console.log("🔍 DEBUG - rol_id=3 (paciente), navegando a Main");
             navigationRoute = 'Main';
           }
-          
+
           // Método 2: Backup por guard
           else if (result.user.guard === 'api_admin') {
             console.log("🔍 DEBUG - Guard es api_admin, navegando a AdminHome");
@@ -92,12 +72,12 @@ export default function Login({ navigation }) {
             console.log("🔍 DEBUG - Guard es api_usuarios, navegando a Main");
             navigationRoute = 'Main';
           }
-          
+
           // Método 3: Backup por rol en texto
           else {
             const userRol = result.user.rol ? String(result.user.rol).toLowerCase() : '';
             console.log("🔍 DEBUG - Rol en texto:", userRol);
-            
+
             if (userRol === 'admin') {
               console.log("🔍 DEBUG - Rol texto 'admin', navegando a AdminHome");
               navigationRoute = 'AdminHome';
@@ -110,6 +90,29 @@ export default function Login({ navigation }) {
             }
           }
         }
+
+        console.log("✅ Mostrando alerta con navigationRoute determinado:", navigationRoute);
+        Alert.alert(
+          "Inicio de sesión exitoso",
+          `Bienvenido - Guard: ${result.user.guard} - Type: ${result.user.user_type}`,
+          [
+            {
+              text: "OK",
+              onPress: () => {
+                console.log("🔄 Usuario presionó OK, navegando a pantalla principal");
+                console.log("🔍 DEBUG - Navegando a ruta:", navigationRoute);
+                console.log("🔍 DEBUG - Información completa del usuario:", JSON.stringify(result.user, null, 2));
+                // Navegación basada en guard
+                console.log("🔍 DEBUG - ANTES de navigation.reset, navigationRoute =", navigationRoute);
+                navigation.reset({
+                  index: 0,
+                  routes: [{ name: navigationRoute }],
+                });
+              }
+            }
+          ]
+        );
+        console.log("✅ Alerta mostrada");
 
       } else {
         console.log("❌ Login fallido:", result.message);

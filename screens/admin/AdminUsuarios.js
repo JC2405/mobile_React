@@ -24,9 +24,15 @@ export default function AdminUsuarios() {
   const [modalVisible, setModalVisible] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
   const [formData, setFormData] = useState({
-    name: '',
+    nombre: '',
+    apellido: '',
+    documento_identidad: '',
     email: '',
-    password: ''
+    password: '',
+    telefono: '',
+    fecha_nacimiento: '',
+    eps_id: '',
+    rol_id: '3' // Default to patient role
   });
 
   // Cargar usuarios
@@ -90,13 +96,15 @@ export default function AdminUsuarios() {
   // Crear usuario
   const crearUsuario = async () => {
     try {
-      if (!formData.name || !formData.email || !formData.password) {
-        Alert.alert("Error", "Por favor complete todos los campos obligatorios (Nombre, Email, Contraseña)");
+      // Validar campos obligatorios
+      if (!formData.nombre || !formData.apellido || !formData.documento_identidad ||
+          !formData.email || !formData.password || !formData.fecha_nacimiento) {
+        Alert.alert("Error", "Por favor complete todos los campos obligatorios");
         return;
       }
 
-      if (formData.password.length < 4) {
-        Alert.alert("Error", "La contraseña debe tener al menos 4 caracteres");
+      if (formData.password.length < 8) {
+        Alert.alert("Error", "La contraseña debe tener al menos 8 caracteres");
         return;
       }
 
@@ -177,9 +185,15 @@ export default function AdminUsuarios() {
   // Resetear formulario
   const resetForm = () => {
     setFormData({
-      name: '',
+      nombre: '',
+      apellido: '',
+      documento_identidad: '',
       email: '',
-      password: ''
+      password: '',
+      telefono: '',
+      fecha_nacimiento: '',
+      eps_id: '',
+      rol_id: '3' // Default to patient role
     });
   };
 
@@ -295,12 +309,32 @@ export default function AdminUsuarios() {
                 <Text style={styles.label}>Nombre *</Text>
                 <TextInput
                   style={styles.input}
-                  value={formData.name}
-                  onChangeText={(text) => setFormData({...formData, name: text})}
+                  value={formData.nombre}
+                  onChangeText={(text) => setFormData({...formData, nombre: text})}
                   placeholder="Ingrese el nombre"
                 />
               </View>
 
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>Apellido *</Text>
+                <TextInput
+                  style={styles.input}
+                  value={formData.apellido}
+                  onChangeText={(text) => setFormData({...formData, apellido: text})}
+                  placeholder="Ingrese el apellido"
+                />
+              </View>
+
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>Documento de Identidad *</Text>
+                <TextInput
+                  style={styles.input}
+                  value={formData.documento_identidad}
+                  onChangeText={(text) => setFormData({...formData, documento_identidad: text})}
+                  placeholder="Ingrese el documento"
+                  keyboardType="numeric"
+                />
+              </View>
 
               <View style={styles.inputGroup}>
                 <Text style={styles.label}>Email *</Text>
@@ -314,18 +348,62 @@ export default function AdminUsuarios() {
                 />
               </View>
 
-
               <View style={styles.inputGroup}>
                 <Text style={styles.label}>Contraseña *</Text>
                 <TextInput
                   style={styles.input}
                   value={formData.password}
                   onChangeText={(text) => setFormData({...formData, password: text})}
-                  placeholder="Ingrese la contraseña"
+                  placeholder="Ingrese la contraseña (mínimo 8 caracteres)"
                   secureTextEntry
                 />
               </View>
 
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>Fecha de Nacimiento *</Text>
+                <TextInput
+                  style={styles.input}
+                  value={formData.fecha_nacimiento}
+                  onChangeText={(text) => setFormData({...formData, fecha_nacimiento: text})}
+                  placeholder="YYYY-MM-DD"
+                />
+              </View>
+
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>Teléfono</Text>
+                <TextInput
+                  style={styles.input}
+                  value={formData.telefono}
+                  onChangeText={(text) => setFormData({...formData, telefono: text})}
+                  placeholder="Ingrese el teléfono"
+                  keyboardType="phone-pad"
+                />
+              </View>
+
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>EPS ID</Text>
+                <TextInput
+                  style={styles.input}
+                  value={formData.eps_id}
+                  onChangeText={(text) => setFormData({...formData, eps_id: text})}
+                  placeholder="ID de EPS (opcional)"
+                  keyboardType="numeric"
+                />
+              </View>
+
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>Rol *</Text>
+                <Picker
+                  selectedValue={formData.rol_id}
+                  onValueChange={(value) => setFormData({...formData, rol_id: value})}
+                  style={styles.picker}
+                >
+                  <Picker.Item label="Seleccionar rol..." value="" />
+                  <Picker.Item label="Administrador" value="1" />
+                  <Picker.Item label="Doctor" value="2" />
+                  <Picker.Item label="Paciente" value="3" />
+                </Picker>
+              </View>
 
               <TouchableOpacity
                 style={styles.submitButton}
