@@ -1,41 +1,33 @@
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet } from "react-native";
-// { NavigationContainer } from "@react-navigation/native";
-//import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { useEffect } from "react";
+import * as Notifications from 'expo-notifications';
 import AppNavegation from "./Src/Navegation/AppNavegation";
 
-// Pantallas
-import citas from "./Src/Navegation/Stack/CitasStack"
-import Login from "./screens/Auth/login";
-import Register from "./screens/Auth/register";
-
-//wconst Stack = createNativeStackNavigator();
-
 export default function App() {
-  //return (
-  //  <NavigationContainer>
-  //    <Stack.Navigator initialRouteName="Login">
-  //      <Stack.Screen
-  //        name="Login"
-  //        component={Login}
-  //        options={{ headerShown: false }}
-  //      />
-  //      <Stack.Screen name="Register" component={Register} />
-  //    </Stack.Navigator>
-  //    <StatusBar style="auto" />
-  //  </NavigationContainer>
-  //);
- return (
-   <>
-     <StatusBar style="auto" />
-     <AppNavegation />
-   </>
- );
-}
+  useEffect(() => {
+    Notifications.setNotificationHandler({
+      handleNotifications: async () => ({
+        shouldShowAlert: true,
+        shouldShowBanner: true,
+        shouldPlaySound: true,
+        shouldSetBadge: false,
+      }),
+    });
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-  },
-});
+    const getPermisos = async () => {
+      const { status } = await Notifications.requestPermissionsAsync();
+      if (status !== 'granted') {
+        alert('Se requieren permisos para recibir notificaciones');
+      }
+    };
+
+    getPermisos();
+  }, []);
+
+  return (
+    <>
+      <StatusBar style="auto" />
+      <AppNavegation />
+    </>
+  );
+}
