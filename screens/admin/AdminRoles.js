@@ -11,7 +11,7 @@ import {
   Modal,
   ScrollView
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons } from 'react-native-vector-icons/Ionicons';
 import { AdminRolesService } from '../../Src/Navegation/Services/AdminService';
 
 export default function AdminRoles() {

@@ -4,7 +4,7 @@ import { AuthContext } from '../../Src/Navegation/AuthContext';
 import DashboardCard from '../../components/DashboardCard';
 import { obtenerCitasPorPaciente, obtenerEspecialidades } from '../../Src/Navegation/Services/CitasService';
 import api from '../../Src/Navegation/Services/Conexion';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons } from 'react-native-vector-icons/Ionicons';
 
 export default function Home() {
   const { userToken } = useContext(AuthContext);

@@ -1,9 +1,8 @@
-import { useEffect, useState } from "react";
-import { Alert, Switch, Text, View } from "react-native";
+import React, { useEffect, useState } from "react";
+import { Alert, Switch, Text, View, TouchableOpacity, StyleSheet } from "react-native";
 import * as Notificaciones from 'expo-notifications';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
-import { Button } from "@mui/material";
 
 export default function Configuracion(){
     
@@ -29,7 +28,7 @@ export default function Configuracion(){
 
     const toggleSwitch = async (valor) => {
         if (valor) {
-            const { status } = await Notifications.requestPermissionsAsync();
+            const { status } = await Notificaciones.requestPermissionsAsync();
             if (status === 'granted') {
                 await AsyncStorage.setItem('notificaciones_activas', 'true');
                 setPermisoNotificaciones(true);

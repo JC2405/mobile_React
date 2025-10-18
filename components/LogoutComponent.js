@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { TouchableOpacity, Text, StyleSheet, Alert } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons } from 'react-native-vector-icons/Ionicons';
 import { AuthContext } from '../Src/Navegation/AuthContext';
 import { SharedService } from '../Src/Navegation/Services/DoctorService';
 

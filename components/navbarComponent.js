@@ -1,7 +1,7 @@
 import {Text, View, StyleSheet, TouchableOpacity} from 'react-native';
 import React from 'react';
 import {useNavigation} from '@react-navigation/native';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import { FontAwesome } from 'react-native-vector-icons/FontAwesome';
 
 const NavbarComponent = ({title}) => {
   const navigation = useNavigation();
@@ -9,7 +9,7 @@ const NavbarComponent = ({title}) => {
   return (
     <View style={styles.navbar}>
       <TouchableOpacity onPress={() => navigation.goBack()}>
-        <Icon name="arrow-left" size={24} color="#fff" />
+        <FontAwesome name="chevron-left" size={24} color="#fff" />
       </TouchableOpacity>
       <Text style={styles.title}>{title}</Text>
       <View style={{width: 24}} /> {/* Placeholder for alignment */}

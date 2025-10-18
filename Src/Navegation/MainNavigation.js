@@ -1,6 +1,7 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Ionicons, Feather } from '@expo/vector-icons';
+import { Ionicons } from 'react-native-vector-icons/Ionicons';
+import { Feather } from 'react-native-vector-icons/Feathert';
 import MainStack from './Stack/MainStack';
 import { CitasStack } from './Stack/CitasStack';
 import { EspecialidadesStack } from './Stack/EspecialidadStack';

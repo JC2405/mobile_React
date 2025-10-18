@@ -12,7 +12,7 @@ import {
   ScrollView
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons } from 'react-native-vector-icons/Ionicons';
 import { AdminUsuariosService, AdminRolesService } from '../../Src/Navegation/Services/AdminService';
 
 export default function AdminUsuarios() {

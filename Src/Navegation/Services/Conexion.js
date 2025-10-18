@@ -16,8 +16,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 // 1. Instala ngrok: https://ngrok.com/download
 // 2. Ejecuta: ngrok http 8000
 // 3. Usa la URL que proporcione ngrok (ej: https://abc123.ngrok.io/api)
-
-const URL_BASE = "http://10.2.232.70:8000/api";
+const API_URL_BASE="https://vivisectional-unspuriously-kendall.ngrok-free.dev"
+//const URL_BASE = "http://10.2.232.70:8000/api";
 
 // 💡 Para encontrar tu IP:
 // - Windows: Ejecuta 'ipconfig' en terminal
