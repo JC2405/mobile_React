@@ -1,7 +1,6 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Ionicons } from 'react-native-vector-icons/Ionicons';
-import { Feather } from 'react-native-vector-icons/Feathert';
+import { Ionicons } from "@expo/vector-icons";
 import MainStack from './Stack/MainStack';
 import { CitasStack } from './Stack/CitasStack';
 import { EspecialidadesStack } from './Stack/EspecialidadStack';
@@ -46,7 +45,7 @@ export default function MainNavegation() {
         component={CitasStack}
         options={{
           tabBarIcon: ({ color, size }) => (
-            <Feather name="calendar" size={size} color={color} />
+            <Ionicons name="calendar" size={size} color={color} />
           ),
           tabBarLabel: 'Citas',
         }}
@@ -57,7 +56,7 @@ export default function MainNavegation() {
         component={AgendarStack}
         options={{
           tabBarIcon: ({ color, size }) => (
-            <Feather name="share" size={size} color={color} />
+            <Ionicons name="share" size={size} color={color} />
           ),
           tabBarLabel: 'Agendar',
         }}
@@ -68,7 +67,7 @@ export default function MainNavegation() {
         component={EspecialidadesStack}
         options={{
           tabBarIcon: ({ color, size }) => (
-            <Feather name="star" size={size} color={color} />
+            <Ionicons name="star" size={size} color={color} />
           ),
           tabBarLabel: 'Especialidades',
         }}
@@ -79,7 +78,7 @@ export default function MainNavegation() {
         component={PerfilStack}
         options={{
           tabBarIcon: ({ color, size }) => (
-            <Feather name="user" size={size} color={color} />
+            <Ionicons name="user" size={size} color={color} />
           ),
           tabBarLabel: 'Perfil',
         }}

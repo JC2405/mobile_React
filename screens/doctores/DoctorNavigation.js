@@ -1,7 +1,7 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Ionicons } from 'react-native-vector-icons/Ionicons';
-import { Feather } from 'react-native-vector-icons/Feather';
+import { Ionicons } from "@expo/vector-icons";
+
 import DoctorHome from './DoctorHome';
 import DoctorCitas from './DoctorCitas';
 import DoctorPerfil from './DoctorPerfil';
@@ -36,7 +36,7 @@ export default function DoctorNavigation() {
         component={DoctorCitas}
         options={{
           tabBarIcon: ({ color, size }) => (
-            <Feather name="calendar" size={size} color={color} />
+            <Ionicons name={"calendar"} size={size} color={color} />
           ),
           tabBarLabel: 'Mis Citas',
         }}
@@ -47,7 +47,7 @@ export default function DoctorNavigation() {
         component={DoctorPerfil}
         options={{
           tabBarIcon: ({ color, size }) => (
-            <Feather name="user" size={size} color={color} />
+            <Ionicons name={"user"} size={size} color={color} />
           ),
           tabBarLabel: 'Perfil',
         }}

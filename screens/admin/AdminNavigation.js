@@ -1,7 +1,9 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Ionicons } from 'react-native-vector-icons/Ionicons';
-import { Feather } from 'react-native-vector-icons/Feather';
+import { Ionicons } from "@expo/vector-icons";
+
+// import { Feather } from 'react-native-vector-icons/Feather';
+
 import AdminHome from './adminHome';
 import AdminUsuarios from './AdminUsuarios';
 import AdminRoles from './AdminRoles';
@@ -50,7 +52,8 @@ export default function AdminNavigation() {
         component={AdminUsuarios}
         options={{
           tabBarIcon: ({ color, size }) => (
-            <Feather name="users" size={size} color={color} />
+            <Ionicons
+ name="users" size={size} color={color} />
           ),
           tabBarLabel: 'ADMIN Usuarios',
         }}
@@ -61,7 +64,8 @@ export default function AdminNavigation() {
         component={AdminRoles}
         options={{
           tabBarIcon: ({ color, size }) => (
-            <Feather name="shield" size={size} color={color} />
+            <Ionicons
+ name="shield" size={size} color={color} />
           ),
           tabBarLabel: 'Roles',
         }}
@@ -72,7 +76,8 @@ export default function AdminNavigation() {
         component={AdminDoctores}
         options={{
           tabBarIcon: ({ color, size }) => (
-            <Feather name="user-check" size={size} color={color} />
+            <Ionicons
+ name="user-check" size={size} color={color} />
           ),
           tabBarLabel: 'Doctores',
         }}
@@ -83,7 +88,8 @@ export default function AdminNavigation() {
         component={AdminEspecialidades}
         options={{
           tabBarIcon: ({ color, size }) => (
-            <Feather name="star" size={size} color={color} />
+            <Ionicons
+ name="star" size={size} color={color} />
           ),
           tabBarLabel: 'Especialidades',
         }}
@@ -94,7 +100,8 @@ export default function AdminNavigation() {
         component={AdminCitas}
         options={{
           tabBarIcon: ({ color, size }) => (
-            <Feather name="calendar" size={size} color={color} />
+            <Ionicons
+ name="calendar" size={size} color={color} />
           ),
           tabBarLabel: 'Citas',
         }}
@@ -105,7 +112,8 @@ export default function AdminNavigation() {
         component={AdminEPS}
         options={{
           tabBarIcon: ({ color, size }) => (
-            <Feather name="briefcase" size={size} color={color} />
+            <Ionicons
+ name="briefcase" size={size} color={color} />
           ),
           tabBarLabel: 'EPS',
         }}
@@ -116,7 +124,8 @@ export default function AdminNavigation() {
         component={AdminCubiculos}
         options={{
           tabBarIcon: ({ color, size }) => (
-            <Feather name="home" size={size} color={color} />
+            <Ionicons
+ name="home" size={size} color={color} />
           ),
           tabBarLabel: 'Cubículos',
         }}
@@ -127,7 +136,8 @@ export default function AdminNavigation() {
         component={AdminHorarios}
         options={{
           tabBarIcon: ({ color, size }) => (
-            <Feather name="clock" size={size} color={color} />
+            <Ionicons
+ name="clock" size={size} color={color} />
           ),
           tabBarLabel: 'Horarios',
         }}

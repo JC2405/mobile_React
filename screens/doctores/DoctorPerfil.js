@@ -8,7 +8,8 @@ import {
   Alert,
   RefreshControl,
 } from 'react-native';
-import { Ionicons } from 'react-native-vector-icons/Ionicons';
+import { Ionicons } from "@expo/vector-icons";
+
 import { AuthContext } from '../../Src/Navegation/AuthContext';
 import { DoctorService } from '../../Src/Navegation/Services/DoctorService';
 

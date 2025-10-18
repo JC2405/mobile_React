@@ -14,24 +14,26 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.jc2205.ClubApi",
+      "bundleIdentifier": "com.shadowphantom.ClubApi",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
+      "useNextNotificationsApi": true,
       "intentFilters": [],
       "permissions": [],
+      "useCleartextTraffic": true,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.jc2205.ClubApi"
+      "package": "com.shadowphantom.ClubApi"
     },
     "extra": {
       "eas": {
-        "projectId": "6eca71af-96e7-44d2-bb88-e2be178f8ba8"
+        "projectId": "33c8020b-a029-4840-96fb-06e7b058d700"
       }
     }
   }

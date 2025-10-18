@@ -11,7 +11,8 @@ import {
   Modal,
   ScrollView
 } from 'react-native';
-import { Ionicons } from 'react-native-vector-icons/Ionicons';
+import { Ionicons } from "@expo/vector-icons";
+
 import { AdminCubiculosService } from '../../Src/Navegation/Services/AdminService';
 
 export default function AdminCubiculos() {

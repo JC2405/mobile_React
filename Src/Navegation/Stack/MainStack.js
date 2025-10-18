@@ -1,7 +1,7 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { View, Text } from 'react-native';
-import { Ionicons } from 'react-native-vector-icons/Ionicons';
+import { Ionicons } from "@expo/vector-icons";
 import Home from '../../../screens/pacientes/Home';
 
 const Stack = createNativeStackNavigator();
