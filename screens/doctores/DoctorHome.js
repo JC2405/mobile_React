@@ -8,6 +8,7 @@ import {
   RefreshControl,
   Alert,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { SharedService } from '../../Src/Navegation/Services/DoctorService';
@@ -60,12 +61,12 @@ export default function DoctorHome() {
    };
 
   return (
-    <ScrollView
-      style={styles.container}
-      refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-      }
-    >
+    <SafeAreaView style={styles.container} edges={['top']}>
+      <ScrollView
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
       <View style={styles.header}>
         <View style={styles.welcomeSection}>
           <Text style={styles.welcomeText}>¡Bienvenido de vuelta!</Text>
@@ -109,6 +110,7 @@ export default function DoctorHome() {
         </View>
       </View>
     </ScrollView>
+   </SafeAreaView>
   );
 }
 

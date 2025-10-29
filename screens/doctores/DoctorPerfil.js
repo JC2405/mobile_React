@@ -132,13 +132,8 @@ export default function DoctorPerfil({ navigation }) {
       </View>
 
       <View style={styles.actionsContainer}>
-        <TouchableOpacity style={styles.actionButton} onPress={actualizarPerfil}>
-          <Ionicons name="create-outline" size={24} color="#fff" />
-          <Text style={styles.actionText}>Editar Perfil</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity 
-          style={[styles.actionButton, styles.logoutButton]} 
+        <TouchableOpacity
+          style={[styles.actionButton, styles.logoutButton]}
           onPress={handleLogout}
         >
           <Ionicons name="log-out-outline" size={24} color="#fff" />

@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, StyleSheet, ScrollView, RefreshControl, Alert, TouchableOpacity } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
 import { AuthContext } from '../../Src/Navegation/AuthContext';
 import DashboardCard from '../../components/DashboardCard';
 import { obtenerCitasPorPaciente, obtenerEspecialidades } from '../../Src/Navegation/Services/CitasService';
@@ -7,13 +9,14 @@ import api from '../../Src/Navegation/Services/Conexion';
 import { Ionicons } from '@expo/vector-icons';
 
 export default function Home() {
-  const { userToken } = useContext(AuthContext);
-  const [citas, setCitas] = useState([]);
-  const [especialidades, setEspecialidades] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-  const [userId, setUserId] = useState(null);
-  const [userData, setUserData] = useState(null);
+   const navigation = useNavigation();
+   const { userToken } = useContext(AuthContext);
+   const [citas, setCitas] = useState([]);
+   const [especialidades, setEspecialidades] = useState([]);
+   const [loading, setLoading] = useState(true);
+   const [refreshing, setRefreshing] = useState(false);
+   const [userId, setUserId] = useState(null);
+   const [userData, setUserData] = useState(null);
 
   useEffect(() => {
     fetchUserData();
@@ -78,10 +81,10 @@ export default function Home() {
   }
 
   return (
-    <ScrollView
-      style={styles.container}
-      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-    >
+    <SafeAreaView style={styles.container} edges={['top']}>
+      <ScrollView
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      >
       <View style={styles.header}>
         <View style={styles.headerContent}>
           <View style={styles.welcomeIcon}>
@@ -102,18 +105,18 @@ export default function Home() {
       <View style={styles.cardsContainer}>
        
 
-        <TouchableOpacity style={[styles.quickActionCard, { backgroundColor: '#10B981' }]} onPress={() => Alert.alert('Especialidades', `Hay ${especialidades.length} especialidades disponibles.`)}>
+        <TouchableOpacity style={[styles.quickActionCard, { backgroundColor: '#10B981' }]}
+        onPress={() => navigation.navigate('Especialidades')}>
           <View style={styles.quickActionIcon}>
             <Ionicons name="medkit" size={24} color="#fff" />
           </View>
           <View style={styles.quickActionContent}>
             <Text style={styles.quickActionTitle}>Especialidades</Text>
-            <Text style={styles.quickActionSubtitle}>{especialidades.length} disponibles</Text>
           </View>
           <Ionicons name="chevron-forward" size={20} color="#fff" />
         </TouchableOpacity>
 
-        <TouchableOpacity style={[styles.quickActionCard, { backgroundColor: '#3B82F6' }]} onPress={() => Alert.alert('Agendar Cita', 'Funcionalidad próximamente.')}>
+        <TouchableOpacity style={[styles.quickActionCard, { backgroundColor: '#3B82F6' }]} onPress={() => navigation.navigate('Agendar')}>
           <View style={styles.quickActionIcon}>
             <Ionicons name="add-circle" size={24} color="#fff" />
           </View>
@@ -134,6 +137,7 @@ export default function Home() {
         </Text>
       </View>
     </ScrollView>
+   </SafeAreaView>
   );
 }
 

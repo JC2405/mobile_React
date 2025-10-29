@@ -5,7 +5,7 @@ import { AuthContext } from '../../Src/Navegation/AuthContext';
 import api from '../../Src/Navegation/Services/Conexion';
 import LogoutComponent from '../../components/LogoutComponent';
 
-export default function Perfil() {
+export default function Perfil({ navigation }) {
     const { userToken } = useContext(AuthContext);
     const [userProfile, setUserProfile] = useState(null);
     const [epsData, setEpsData] = useState(null);
@@ -261,33 +261,7 @@ export default function Perfil() {
                         </>
                     )}
 
-                    {/* User ID */}
-                    <View style={styles.infoRow}>
-                        <Text style={styles.label}>ID de Usuario:</Text>
-                        <Text style={styles.value}>{userProfile.id}</Text>
-                    </View>
-
-                    {/* Role information */}
-                    {userProfile.rol && (
-                        <View style={styles.infoRow}>
-                            <Text style={styles.label}>Rol:</Text>
-                            <Text style={styles.value}>{userProfile.rol.role || userProfile.rol.rol || userProfile.rol}</Text>
-                        </View>
-                    )}
-                    {userProfile.rol_id && (
-                        <View style={styles.infoRow}>
-                            <Text style={styles.label}>ID del Rol:</Text>
-                            <Text style={styles.value}>{userProfile.rol_id}</Text>
-                        </View>
-                    )}
-
-                    {/* Guard information */}
-                    {userProfile.guard && (
-                        <View style={styles.infoRow}>
-                            <Text style={styles.label}>Tipo de Autenticación:</Text>
-                            <Text style={styles.value}>{userProfile.guard}</Text>
-                        </View>
-                    )}
+                   
                 </View>
             </View>
         );
@@ -317,7 +291,7 @@ export default function Perfil() {
 
             {/* Botón de Cerrar Sesión */}
             <View style={styles.logoutSection}>
-                <LogoutComponent navigation={undefined} />
+                <LogoutComponent navigation={navigation} />
             </View>
 
             <View style={styles.infoSection}>

@@ -104,10 +104,50 @@ export const AdminUsuariosService = {
       console.log("🔄 AdminUsuariosService: Eliminando usuario:", id);
       const response = await api.delete(`/eliminarUsuarioAuth/${id}`);
       console.log("✅ AdminUsuariosService: Usuario eliminado exitosamente");
-      return { success: true, data: response.data };
+      return { success: true, data: response.data, message: response.data.message || "Usuario eliminado correctamente" };
     } catch (error) {
       console.error("❌ AdminUsuariosService: Error eliminando usuario:", error);
-      return { success: false, message: error.response?.data?.message || "Error al eliminar usuario" };
+      const errorMessage = error.response?.data?.message || error.response?.data?.error || "Error al eliminar usuario";
+      return { success: false, message: errorMessage };
+    }
+  },
+
+  // Crear usuario administrador
+  crearUsuarioAdmin: async (usuarioData) => {
+    try {
+      console.log("🔄 AdminUsuariosService: Creando usuario administrador:", usuarioData);
+      const response = await api.post("/creacionDeAdmin", usuarioData);
+      console.log("✅ AdminUsuariosService: Usuario administrador creado exitosamente");
+      return { success: true, data: response.data };
+    } catch (error) {
+      console.error("❌ AdminUsuariosService: Error creando usuario administrador:", error);
+      return { success: false, message: error.response?.data?.message || "Error al crear usuario administrador" };
+    }
+  },
+
+  // Editar usuario administrador
+  editarUsuarioAdmin: async (id, usuarioData) => {
+    try {
+      console.log("🔄 AdminUsuariosService: Editando usuario administrador:", id, usuarioData);
+      const response = await api.put(`/editarAdmin/${id}`, usuarioData);
+      console.log("✅ AdminUsuariosService: Usuario administrador editado exitosamente");
+      return { success: true, data: response.data };
+    } catch (error) {
+      console.error("❌ AdminUsuariosService: Error editando usuario administrador:", error);
+      return { success: false, message: error.response?.data?.message || "Error al editar usuario administrador" };
+    }
+  },
+
+  // Eliminar usuario administrador
+  eliminarUsuarioAdmin: async (id) => {
+    try {
+      console.log("🔄 AdminUsuariosService: Eliminando usuario administrador:", id);
+      const response = await api.delete(`/eliminarAdmin/${id}`);
+      console.log("✅ AdminUsuariosService: Usuario administrador eliminado exitosamente");
+      return { success: true, data: response.data, message: response.data.message || "Usuario administrador eliminado correctamente" };
+    } catch (error) {
+      console.error("❌ AdminUsuariosService: Error eliminando usuario administrador:", error);
+      return { success: false, message: error.response?.data?.message || "Error al eliminar usuario administrador" };
     }
   }
 };
@@ -374,6 +414,33 @@ export const AdminCubiculosService = {
     }
   },
 
+  // Actualizar cubículo
+  actualizarCubiculo: async (id, cubiculoData) => {
+    try {
+      console.log("🔄 AdminCubiculosService: Actualizando cubículo:", id, cubiculoData);
+      const response = await api.put(`/actualizarCubiculo/${id}`, cubiculoData);
+      console.log("✅ AdminCubiculosService: Cubículo actualizado exitosamente");
+      return { success: true, data: response.data };
+    } catch (error) {
+      console.error("❌ AdminCubiculosService: Error actualizando cubículo:", error);
+      return { success: false, message: error.response?.data?.message || "Error al actualizar cubículo" };
+    }
+  },
+
+  // Eliminar cubículo
+  eliminarCubiculo: async (id) => {
+    try {
+      console.log("🔄 AdminCubiculosService: Eliminando cubículo:", id);
+      const response = await api.delete(`/eliminarCubiculo/${id}`);
+      console.log("✅ AdminCubiculosService: Cubículo eliminado exitosamente");
+      return { success: true, data: response.data, message: response.data.message || "Cubículo eliminado correctamente" };
+    } catch (error) {
+      console.error("❌ AdminCubiculosService: Error eliminando cubículo:", error);
+      const errorMessage = error.response?.data?.message || error.response?.data?.error || "Error al eliminar cubículo";
+      return { success: false, message: errorMessage };
+    }
+  },
+
   // Cubículos disponibles
   cubiculosDisponibles: async () => {
     try {
@@ -453,7 +520,7 @@ export const AdminHorariosService = {
 
       console.log("📤 Enviando datos al backend:", backendData);
 
-      const response = await api.post("/crearHorario", backendData);
+      const response = await api.post("/crearhorario", backendData);
       console.log("✅ AdminHorariosService: Horario creado exitosamente");
       return { success: true, data: response.data };
     } catch (error) {

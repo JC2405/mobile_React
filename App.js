@@ -1,5 +1,6 @@
 import { StatusBar } from "expo-status-bar";
 import { StyleSheet } from "react-native";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 // { NavigationContainer } from "@react-navigation/native";
 //import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import AppNavegation from "./Src/Navegation/AppNavegation";
@@ -25,12 +26,12 @@ export default function App() {
   //    <StatusBar style="auto" />
   //  </NavigationContainer>
   //);
- return (
-   <>
-     <StatusBar style="auto" />
-     <AppNavegation />
-   </>
- );
+  return (
+    <SafeAreaProvider>
+      <StatusBar style="auto" />
+      <AppNavegation />
+    </SafeAreaProvider>
+  );
 }
 
 const styles = StyleSheet.create({

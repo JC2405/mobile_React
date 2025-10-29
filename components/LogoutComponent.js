@@ -8,6 +8,8 @@ export default function LogoutComponent({ navigation, style, textStyle, iconColo
   const { logout } = useContext(AuthContext);
 
   const handleLogout = () => {
+    console.log("🔄 LogoutComponent: Botón de cerrar sesión presionado");
+
     Alert.alert(
       "Cerrar Sesión",
       "¿Estás seguro de que deseas cerrar sesión?",
@@ -18,16 +20,20 @@ export default function LogoutComponent({ navigation, style, textStyle, iconColo
           style: "destructive",
           onPress: async () => {
             try {
-              console.log("🔄 LogoutComponent: Cerrando sesión");
-              
-              // Llamar al endpoint de logout del backend
-              await SharedService.logout();
-              
-              // Limpiar el contexto local
+              console.log("🔄 LogoutComponent: Iniciando proceso de logout");
+
+              // Llamar al endpoint de logout del backend primero
+              console.log("🔄 LogoutComponent: Llamando SharedService.logout()");
+              const logoutResult = await SharedService.logout();
+              console.log("✅ LogoutComponent: SharedService.logout() completado:", logoutResult);
+
+              // Limpiar el contexto local después
+              console.log("🔄 LogoutComponent: Limpiando contexto local");
               await logout();
-              
+              console.log("✅ LogoutComponent: Contexto local limpiado");
+
               console.log("✅ LogoutComponent: Sesión cerrada exitosamente");
-              
+
               // Navegar al login
               navigation.reset({
                 index: 0,
@@ -35,7 +41,9 @@ export default function LogoutComponent({ navigation, style, textStyle, iconColo
               });
             } catch (error) {
               console.error("❌ LogoutComponent: Error cerrando sesión:", error);
-              // Aún así, limpiar sesión local
+              console.error("❌ LogoutComponent: Error details:", error.response?.data || error.message);
+              // Aún así, limpiar sesión local y navegar
+              console.log("🔄 LogoutComponent: Limpiando contexto local por error");
               await logout();
               navigation.reset({
                 index: 0,

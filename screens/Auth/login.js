@@ -94,7 +94,7 @@ export default function Login({ navigation }) {
         console.log("✅ Mostrando alerta con navigationRoute determinado:", navigationRoute);
         Alert.alert(
           "Inicio de sesión exitoso",
-          `Bienvenido - Guard: ${result.user.guard} - Type: ${result.user.user_type}`,
+          "Bienvenido",
           [
             {
               text: "OK",

@@ -132,8 +132,18 @@ export default function AdminDoctores() {
         return;
       }
 
-      console.log("🔄 AdminDoctores: Actualizando doctor:", editingDoctor.id, formData);
-      const response = await AdminDoctoresService.actualizarDoctor(editingDoctor.id, formData);
+      // Filtrar datos para no enviar password vacío
+      const dataToSend = { ...formData };
+      if (!dataToSend.password || dataToSend.password.trim() === '') {
+        delete dataToSend.password;
+      }
+
+      // Convertir strings vacíos a null para campos opcionales
+      if (dataToSend.telefono === '') dataToSend.telefono = null;
+      if (dataToSend.cubiculo_id === '') dataToSend.cubiculo_id = null;
+
+      console.log("🔄 AdminDoctores: Actualizando doctor:", editingDoctor.id, dataToSend);
+      const response = await AdminDoctoresService.actualizarDoctor(editingDoctor.id, dataToSend);
 
       if (response.success) {
         Alert.alert("Éxito", "Doctor actualizado exitosamente");
@@ -148,6 +158,37 @@ export default function AdminDoctores() {
       console.error("❌ AdminDoctores: Error actualizando doctor:", error);
       Alert.alert("Error", "Error al actualizar doctor");
     }
+  };
+
+  // Eliminar doctor
+  const eliminarDoctor = (doctor) => {
+    Alert.alert(
+      "Eliminar Doctor",
+      `¿Estás seguro de que deseas eliminar al doctor ${doctor.nombre} ${doctor.apellido}?`,
+      [
+        { text: "Cancelar", style: "cancel" },
+        {
+          text: "Eliminar",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              console.log("🔄 AdminDoctores: Eliminando doctor:", doctor.id);
+              const response = await AdminDoctoresService.eliminarDoctor(doctor.id);
+
+              if (response.success) {
+                Alert.alert("Éxito", response.message || "Doctor eliminado exitosamente");
+                cargarDatos();
+              } else {
+                Alert.alert("Error", response.message);
+              }
+            } catch (error) {
+              console.error("❌ AdminDoctores: Error eliminando doctor:", error);
+              Alert.alert("Error", "Error al eliminar doctor");
+            }
+          }
+        }
+      ]
+    );
   };
 
 
@@ -183,7 +224,7 @@ export default function AdminDoctores() {
       telefono: doctor.telefono || '',
       especialidad_id: doctor.especialidad_id?.toString() || '',
       cubiculo_id: doctor.cubiculo_id?.toString() || '',
-      rol_id: doctor.rol_id?.toString() || ''
+      rol_id: doctor.rol_id?.toString() || '2' // Default to doctor role
     });
     setModalVisible(true);
   };
@@ -205,6 +246,12 @@ export default function AdminDoctores() {
           onPress={() => abrirModalEditar(item)}
         >
           <Ionicons name="pencil" size={16} color="#fff" />
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.actionButton, styles.deleteButton]}
+          onPress={() => eliminarDoctor(item)}
+        >
+          <Ionicons name="trash" size={16} color="#fff" />
         </TouchableOpacity>
       </View>
     </View>
@@ -308,12 +355,12 @@ export default function AdminDoctores() {
               </View>
 
               <View style={styles.inputGroup}>
-                <Text style={styles.label}>Contraseña *</Text>
+                <Text style={styles.label}>Contraseña {editingDoctor ? '(dejar vacío para mantener)' : '*'}</Text>
                 <TextInput
                   style={styles.input}
                   value={formData.password}
                   onChangeText={(text) => setFormData({...formData, password: text})}
-                  placeholder="Ingrese la contraseña"
+                  placeholder={editingDoctor ? "Dejar vacío para mantener contraseña actual" : "Ingrese la contraseña"}
                   secureTextEntry
                 />
               </View>

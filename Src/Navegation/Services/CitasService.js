@@ -118,38 +118,75 @@ export const obtenerConteoCitasPorPaciente = async (pacienteId) => {
  };
 
 export const obtenerConteoEspecialidades = async () => {
+     try {
+       console.log("🔄 Obteniendo conteo de especialidades");
+       const response = await api.get("/listarEspecialidades");
+       console.log("📡 Raw response from specialties API:", response);
+
+       // Handle different response formats
+       let especialidadesData = [];
+       if (response.data) {
+         if (response.data.data) {
+           // Laravel controller format: { success: true, data: [...] }
+           especialidadesData = response.data.data;
+         } else if (Array.isArray(response.data)) {
+           // Direct array format: [...]
+           especialidadesData = response.data;
+         } else {
+           console.warn("⚠️ Unexpected response format:", response.data);
+           especialidadesData = [];
+         }
+       }
+
+       const conteo = especialidadesData.length;
+       console.log("✅ Datos de especialidades recibidos:", especialidadesData);
+       console.log("✅ Conteo calculado:", conteo);
+       return { success: true, conteo };
+     } catch (error) {
+       console.error("❌ Error al obtener conteo de especialidades:", error);
+       console.error("❌ Error response:", error.response);
+       console.error("❌ Error status:", error.response?.status);
+       return {
+         success: false,
+         message: error.response?.data?.message || "Error al obtener conteo de especialidades",
+         conteo: 0
+       };
+     }
+   };
+
+export const obtenerHorariosDisponibles = async (doctorId, fecha) => {
     try {
-      console.log("🔄 Obteniendo conteo de especialidades");
-      const response = await api.get("/listarEspecialidades");
-      console.log("📡 Raw response from specialties API:", response);
+      console.log("🔄 Obteniendo horarios disponibles para doctor:", doctorId, "fecha:", fecha);
+      const response = await api.get(`/horariosDisponibles/${doctorId}`, {
+        params: { fecha }
+      });
+      console.log("📡 Raw response from horarios disponibles API:", response);
 
       // Handle different response formats
-      let especialidadesData = [];
+      let horariosData = [];
       if (response.data) {
-        if (response.data.data) {
-          // Laravel controller format: { success: true, data: [...] }
-          especialidadesData = response.data.data;
+        if (response.data.horas_disponibles) {
+          // Expected format: { horas_disponibles: [...] }
+          horariosData = response.data.horas_disponibles;
         } else if (Array.isArray(response.data)) {
           // Direct array format: [...]
-          especialidadesData = response.data;
+          horariosData = response.data;
         } else {
           console.warn("⚠️ Unexpected response format:", response.data);
-          especialidadesData = [];
+          horariosData = [];
         }
       }
 
-      const conteo = especialidadesData.length;
-      console.log("✅ Datos de especialidades recibidos:", especialidadesData);
-      console.log("✅ Conteo calculado:", conteo);
-      return { success: true, conteo };
+      console.log("✅ Horarios disponibles obtenidos:", horariosData);
+      return { success: true, horarios: horariosData };
     } catch (error) {
-      console.error("❌ Error al obtener conteo de especialidades:", error);
+      console.error("❌ Error al obtener horarios disponibles:", error);
       console.error("❌ Error response:", error.response);
       console.error("❌ Error status:", error.response?.status);
       return {
         success: false,
-        message: error.response?.data?.message || "Error al obtener conteo de especialidades",
-        conteo: 0
+        message: error.response?.data?.message || "Error al obtener horarios disponibles",
+        horarios: []
       };
     }
   };

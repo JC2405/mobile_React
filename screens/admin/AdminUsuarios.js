@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import {
   View,
   Text,
@@ -14,8 +14,10 @@ import {
 import { Picker } from '@react-native-picker/picker';
 import { Ionicons } from '@expo/vector-icons';
 import { AdminUsuariosService, AdminRolesService } from '../../Src/Navegation/Services/AdminService';
+import { AuthContext } from '../../Src/Navegation/AuthContext';
 
 export default function AdminUsuarios() {
+  const { user } = useContext(AuthContext);
   const [usuarios, setUsuarios] = useState([]);
   const [roles, setRoles] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -24,15 +26,9 @@ export default function AdminUsuarios() {
   const [modalVisible, setModalVisible] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
   const [formData, setFormData] = useState({
-    nombre: '',
-    apellido: '',
-    documento_identidad: '',
+    name: '',
     email: '',
-    password: '',
-    telefono: '',
-    fecha_nacimiento: '',
-    eps_id: '',
-    rol_id: '3' // Default to patient role
+    password: ''
   });
 
   // Cargar usuarios
@@ -97,8 +93,7 @@ export default function AdminUsuarios() {
   const crearUsuario = async () => {
     try {
       // Validar campos obligatorios
-      if (!formData.nombre || !formData.apellido || !formData.documento_identidad ||
-          !formData.email || !formData.password || !formData.fecha_nacimiento) {
+      if (!formData.name || !formData.email || !formData.password) {
         Alert.alert("Error", "Por favor complete todos los campos obligatorios");
         return;
       }
@@ -108,11 +103,11 @@ export default function AdminUsuarios() {
         return;
       }
 
-      console.log("🔄 AdminUsuarios: Creando usuario:", formData);
-      const response = await AdminUsuariosService.crearUsuario(formData);
+      console.log("🔄 AdminUsuarios: Creando usuario administrador:", formData);
+      const response = await AdminUsuariosService.crearUsuarioAdmin(formData);
 
       if (response.success) {
-        Alert.alert("Éxito", "Usuario creado exitosamente");
+        Alert.alert("Éxito", "Usuario administrador creado exitosamente");
         setModalVisible(false);
         resetForm();
         cargarUsuarios();
@@ -120,8 +115,8 @@ export default function AdminUsuarios() {
         Alert.alert("Error", response.message);
       }
     } catch (error) {
-      console.error("❌ AdminUsuarios: Error creando usuario:", error);
-      Alert.alert("Error", "Error al crear usuario");
+      console.error("❌ AdminUsuarios: Error creando usuario administrador:", error);
+      Alert.alert("Error", "Error al crear usuario administrador");
     }
   };
 
@@ -134,7 +129,16 @@ export default function AdminUsuarios() {
       }
 
       console.log("🔄 AdminUsuarios: Actualizando usuario:", editingUser.id, formData);
-      const response = await AdminUsuariosService.actualizarUsuario(editingUser.id, formData);
+
+      // Determinar si es un admin o usuario regular basado en el rol
+      let response;
+      if (editingUser.rol_id === 1) {
+        // Es administrador, usar el endpoint específico
+        response = await AdminUsuariosService.editarUsuarioAdmin(editingUser.id, formData);
+      } else {
+        // Es usuario regular
+        response = await AdminUsuariosService.actualizarUsuario(editingUser.id, formData);
+      }
 
       if (response.success) {
         Alert.alert("Éxito", "Usuario actualizado exitosamente");
@@ -153,6 +157,18 @@ export default function AdminUsuarios() {
 
   // Eliminar usuario
   const eliminarUsuario = (usuario) => {
+    console.log("🔍 Debug: eliminarUsuario called for user:", usuario);
+    console.log("🔍 Debug: User rol_id:", usuario.rol_id);
+    console.log("🔍 Debug: Current user id:", user?.id);
+
+    // Verificar si el usuario está intentando eliminarse a sí mismo
+    if (user && user.id === usuario.id) {
+      Alert.alert("Error", "No puedes eliminar tu propia cuenta de usuario.");
+      return;
+    }
+
+    console.log("🔍 Debug: About to show Alert.alert");
+
     Alert.alert(
       "Eliminar Usuario",
       `¿Estás seguro de que deseas eliminar al usuario ${usuario.nombre || usuario.name}?`,
@@ -162,12 +178,27 @@ export default function AdminUsuarios() {
           text: "Eliminar",
           style: "destructive",
           onPress: async () => {
+            console.log("🔍 Debug: User confirmed deletion");
             try {
               console.log("🔄 AdminUsuarios: Eliminando usuario:", usuario.id);
-              const response = await AdminUsuariosService.eliminarUsuario(usuario.id);
+              console.log("🔄 AdminUsuarios: Rol del usuario:", usuario.rol_id);
+
+              // Determinar si es un admin o usuario regular basado en el rol
+              let response;
+              if (usuario.rol_id === 1) {
+                console.log("🔄 AdminUsuarios: Usando endpoint de admin");
+                // Es administrador, usar el endpoint específico
+                response = await AdminUsuariosService.eliminarUsuarioAdmin(usuario.id);
+              } else {
+                console.log("🔄 AdminUsuarios: Usando endpoint de usuario regular");
+                // Es usuario regular
+                response = await AdminUsuariosService.eliminarUsuario(usuario.id);
+              }
+
+              console.log("🔄 AdminUsuarios: Respuesta del servidor:", response);
 
               if (response.success) {
-                Alert.alert("Éxito", "Usuario eliminado exitosamente");
+                Alert.alert("Éxito", response.message || "Usuario eliminado exitosamente");
                 cargarUsuarios();
               } else {
                 Alert.alert("Error", response.message);
@@ -185,15 +216,9 @@ export default function AdminUsuarios() {
   // Resetear formulario
   const resetForm = () => {
     setFormData({
-      nombre: '',
-      apellido: '',
-      documento_identidad: '',
+      name: '',
       email: '',
-      password: '',
-      telefono: '',
-      fecha_nacimiento: '',
-      eps_id: '',
-      rol_id: '3' // Default to patient role
+      password: ''
     });
   };
 
@@ -222,6 +247,12 @@ export default function AdminUsuarios() {
         <Text style={styles.usuarioNombre}>{item.nombre || item.name}</Text>
         <Text style={styles.usuarioEmail}>{item.email}</Text>
         <Text style={styles.usuarioTelefono}>{item.telefono}</Text>
+        {item.rol_id === 1 && (
+          <View style={styles.adminBadge}>
+            <Ionicons name="shield-checkmark" size={12} color="#10B981" />
+            <Text style={styles.adminBadgeText}>Admin</Text>
+          </View>
+        )}
       </View>
       <View style={styles.usuarioAcciones}>
         <TouchableOpacity
@@ -232,7 +263,10 @@ export default function AdminUsuarios() {
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.actionButton, styles.deleteButton]}
-          onPress={() => eliminarUsuario(item)}
+          onPress={() => {
+            console.log("🔍 Debug: Delete button pressed for user:", item);
+            eliminarUsuario(item);
+          }}
         >
           <Ionicons name="trash" size={16} color="#fff" />
         </TouchableOpacity>
@@ -309,30 +343,9 @@ export default function AdminUsuarios() {
                 <Text style={styles.label}>Nombre *</Text>
                 <TextInput
                   style={styles.input}
-                  value={formData.nombre}
-                  onChangeText={(text) => setFormData({...formData, nombre: text})}
+                  value={formData.name}
+                  onChangeText={(text) => setFormData({...formData, name: text})}
                   placeholder="Ingrese el nombre"
-                />
-              </View>
-
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>Apellido *</Text>
-                <TextInput
-                  style={styles.input}
-                  value={formData.apellido}
-                  onChangeText={(text) => setFormData({...formData, apellido: text})}
-                  placeholder="Ingrese el apellido"
-                />
-              </View>
-
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>Documento de Identidad *</Text>
-                <TextInput
-                  style={styles.input}
-                  value={formData.documento_identidad}
-                  onChangeText={(text) => setFormData({...formData, documento_identidad: text})}
-                  placeholder="Ingrese el documento"
-                  keyboardType="numeric"
                 />
               </View>
 
@@ -357,52 +370,6 @@ export default function AdminUsuarios() {
                   placeholder="Ingrese la contraseña (mínimo 8 caracteres)"
                   secureTextEntry
                 />
-              </View>
-
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>Fecha de Nacimiento *</Text>
-                <TextInput
-                  style={styles.input}
-                  value={formData.fecha_nacimiento}
-                  onChangeText={(text) => setFormData({...formData, fecha_nacimiento: text})}
-                  placeholder="YYYY-MM-DD"
-                />
-              </View>
-
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>Teléfono</Text>
-                <TextInput
-                  style={styles.input}
-                  value={formData.telefono}
-                  onChangeText={(text) => setFormData({...formData, telefono: text})}
-                  placeholder="Ingrese el teléfono"
-                  keyboardType="phone-pad"
-                />
-              </View>
-
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>EPS ID</Text>
-                <TextInput
-                  style={styles.input}
-                  value={formData.eps_id}
-                  onChangeText={(text) => setFormData({...formData, eps_id: text})}
-                  placeholder="ID de EPS (opcional)"
-                  keyboardType="numeric"
-                />
-              </View>
-
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>Rol *</Text>
-                <Picker
-                  selectedValue={formData.rol_id}
-                  onValueChange={(value) => setFormData({...formData, rol_id: value})}
-                  style={styles.picker}
-                >
-                  <Picker.Item label="Seleccionar rol..." value="" />
-                  <Picker.Item label="Administrador" value="1" />
-                  <Picker.Item label="Doctor" value="2" />
-                  <Picker.Item label="Paciente" value="3" />
-                </Picker>
               </View>
 
               <TouchableOpacity
@@ -506,6 +473,22 @@ const styles = StyleSheet.create({
   usuarioTelefono: {
     fontSize: 12,
     color: '#64748b',
+  },
+  adminBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#D1FAE5',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 10,
+    marginTop: 4,
+    alignSelf: 'flex-start',
+  },
+  adminBadgeText: {
+    fontSize: 10,
+    color: '#065F46',
+    fontWeight: '600',
+    marginLeft: 2,
   },
   usuarioAcciones: {
     flexDirection: 'row',

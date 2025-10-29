@@ -14,7 +14,8 @@ import DatePickerComponent from "../../components/DatePickerComponent";
 import {
   crearCita,
   obtenerEspecialidades,
-  obtenerDoctor
+  obtenerDoctor,
+  obtenerHorariosDisponibles
 } from "../../Src/Navegation/Services/CitasService";
 import api from "../../Src/Navegation/Services/Conexion";
 
@@ -132,21 +133,24 @@ export default function CrearCita({ navigation }) {
     }
   };
 
-  const cargarHorariosDisponibles = (doctorId, fecha) => {
-    // Horarios mock para demostración
-    const horariosBase = [
-      "08:00:00", "09:00:00", "10:00:00", "11:00:00",
-      "14:00:00", "15:00:00", "16:00:00", "17:00:00"
-    ];
+  const cargarHorariosDisponibles = async (doctorId, fecha) => {
+    try {
+      console.log("🔄 Cargando horarios disponibles para doctor:", doctorId, "fecha:", fecha);
+      const result = await obtenerHorariosDisponibles(doctorId, fecha);
 
-    const horariosConFecha = horariosBase.map(hora => ({
-      id: hora,
-      hora_completa: `${fecha} ${hora}`,
-      hora_display: hora
-    }));
-
-    setHorariosDisponibles(horariosConFecha);
-    console.log("✅ Horarios cargados para fecha:", fecha);
+      if (result.success) {
+        setHorariosDisponibles(result.horarios || []);
+        console.log("✅ Horarios disponibles cargados:", result.horarios?.length || 0);
+      } else {
+        console.error("❌ Error al cargar horarios:", result.message);
+        setHorariosDisponibles([]);
+        Alert.alert("Error", "No se pudieron cargar los horarios disponibles");
+      }
+    } catch (error) {
+      console.error("❌ Error al cargar horarios disponibles:", error);
+      setHorariosDisponibles([]);
+      Alert.alert("Error", "Error al conectar con el servidor");
+    }
   };
 
   const handleSubmit = async () => {
@@ -212,7 +216,7 @@ export default function CrearCita({ navigation }) {
             items={doctores.map(doctor => ({
               ...doctor,
               nombre: `${doctor.nombre} ${doctor.apellido}`,
-              especialidad: `ID: ${doctor.especialidad_id}`
+              especialidad: especialidades.find(esp => esp.id === parseInt(doctor.especialidad_id))?.nombre || `ID: ${doctor.especialidad_id}`
             }))}
             displayKey="nombre"
             valueKey="id"
@@ -239,7 +243,7 @@ export default function CrearCita({ navigation }) {
               )}
               {doctorInfo.especialidad_id && (
                 <Text style={styles.infoText}>
-                  🏥 Especialidad ID: {doctorInfo.especialidad_id}
+                  🏥 Especialidad: {especialidades.find(esp => esp.id === parseInt(doctorInfo.especialidad_id))?.nombre || `ID: ${doctorInfo.especialidad_id}`}
                 </Text>
               )}
             </View>

@@ -28,6 +28,9 @@ export default function AdminCubiculos() {
     estado: 'disponible',
     capacidad: '1'
   });
+  const [editingCubiculo, setEditingCubiculo] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [deletingId, setDeletingId] = useState(null);
 
   // Cargar cubículos
   const cargarCubiculos = async () => {
@@ -103,12 +106,88 @@ export default function AdminCubiculos() {
       estado: 'disponible',
       capacidad: '1'
     });
+    setEditingCubiculo(null);
+    setIsEditing(false);
   };
 
   // Abrir modal para crear cubículo
   const abrirModalCrear = () => {
     resetForm();
     setModalVisible(true);
+  };
+
+  // Abrir modal para editar cubículo
+  const abrirModalEditar = (cubiculo) => {
+    setFormData({
+      numero: cubiculo.numero || '',
+      nombre: cubiculo.nombre || '',
+      tipo: cubiculo.tipo || 'consulta',
+      equipamiento: cubiculo.equipamiento || '',
+      estado: cubiculo.estado || 'disponible',
+      capacidad: cubiculo.capacidad?.toString() || '1'
+    });
+    setEditingCubiculo(cubiculo);
+    setIsEditing(true);
+    setModalVisible(true);
+  };
+
+  // Editar cubículo
+  const editarCubiculo = async () => {
+    try {
+      if (!formData.numero || !formData.nombre) {
+        Alert.alert("Error", "Por favor complete los campos obligatorios (Número y Nombre)");
+        return;
+      }
+
+      console.log("🔄 AdminCubiculos: Editando cubículo:", editingCubiculo.id, formData);
+      const response = await AdminCubiculosService.actualizarCubiculo(editingCubiculo.id, formData);
+
+      if (response.success) {
+        Alert.alert("Éxito", "Cubículo actualizado exitosamente");
+        setModalVisible(false);
+        resetForm();
+        cargarCubiculos();
+      } else {
+        Alert.alert("Error", response.message);
+      }
+    } catch (error) {
+      console.error("❌ AdminCubiculos: Error editando cubículo:", error);
+      Alert.alert("Error", "Error al editar cubículo");
+    }
+  };
+
+  // Eliminar cubículo
+  const eliminarCubiculo = async (cubiculo) => {
+    Alert.alert(
+      "Confirmar eliminación",
+      `¿Estás seguro de que deseas eliminar el cubículo "${cubiculo.nombre}"?`,
+      [
+        { text: "Cancelar", style: "cancel" },
+        {
+          text: "Eliminar",
+          style: "destructive",
+          onPress: async () => {
+            setDeletingId(cubiculo.id);
+            try {
+              console.log("🔄 AdminCubiculos: Eliminando cubículo:", cubiculo.id);
+              const response = await AdminCubiculosService.eliminarCubiculo(cubiculo.id);
+
+              if (response.success) {
+                Alert.alert("Éxito", "Cubículo eliminado exitosamente");
+                cargarCubiculos();
+              } else {
+                Alert.alert("Error", response.message);
+              }
+            } catch (error) {
+              console.error("❌ AdminCubiculos: Error eliminando cubículo:", error);
+              Alert.alert("Error", "Error al eliminar cubículo");
+            } finally {
+              setDeletingId(null);
+            }
+          }
+        }
+      ]
+    );
   };
 
   // Renderizar item de cubículo
@@ -124,6 +203,25 @@ export default function AdminCubiculos() {
             {item.estado || 'disponible'}
           </Text>
         </View>
+      </View>
+      <View style={styles.actionButtons}>
+        <TouchableOpacity
+          style={[styles.actionButton, styles.editButton]}
+          onPress={() => abrirModalEditar(item)}
+        >
+          <Ionicons name="pencil" size={16} color="#fff" />
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.actionButton, styles.deleteButton, deletingId === item.id && styles.deletingButton]}
+          onPress={() => eliminarCubiculo(item)}
+          disabled={deletingId === item.id}
+        >
+          {deletingId === item.id ? (
+            <Ionicons name="hourglass" size={16} color="#fff" />
+          ) : (
+            <Ionicons name="trash" size={16} color="#fff" />
+          )}
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -180,7 +278,7 @@ export default function AdminCubiculos() {
       >
         <View style={styles.modalContainer}>
           <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>Crear Cubículo</Text>
+            <Text style={styles.modalTitle}>{isEditing ? 'Editar Cubículo' : 'Crear Cubículo'}</Text>
             <TouchableOpacity
               onPress={() => setModalVisible(false)}
               style={styles.closeButton}
@@ -271,9 +369,9 @@ export default function AdminCubiculos() {
 
               <TouchableOpacity
                 style={styles.submitButton}
-                onPress={crearCubiculo}
+                onPress={isEditing ? editarCubiculo : crearCubiculo}
               >
-                <Text style={styles.submitButtonText}>Crear Cubículo</Text>
+                <Text style={styles.submitButtonText}>{isEditing ? 'Actualizar Cubículo' : 'Crear Cubículo'}</Text>
               </TouchableOpacity>
             </View>
           </ScrollView>
@@ -350,6 +448,26 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 2,
     elevation: 2,
+  },
+  actionButtons: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  actionButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 6,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  editButton: {
+    backgroundColor: '#3B82F6',
+  },
+  deleteButton: {
+    backgroundColor: '#EF4444',
+  },
+  deletingButton: {
+    backgroundColor: '#9CA3AF',
   },
   cubiculoInfo: {
     flex: 1,

@@ -17,7 +17,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 // 2. Ejecuta: ngrok http 8000
 // 3. Usa la URL que proporcione ngrok (ej: https://abc123.ngrok.io/api)
 
-const URL_BASE = "http://10.2.232.70:8000/api";
+const URL_BASE = "http://172.20.10.3:8000/api";
 
 // 💡 Para encontrar tu IP:
 // - Windows: Ejecuta 'ipconfig' en terminal
@@ -31,7 +31,7 @@ const api = axios.create({
   },
 });
 
-const rutasPublicas = ["/login", "/crearUsuarioPaciente"];
+const rutasPublicas = ["/login", "/crearUsuarioPaciente", "/logout"];
 
 api.interceptors.request.use(
   async (config) => {

@@ -12,7 +12,8 @@ import {
   ScrollView
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { AdminHorariosService } from '../../Src/Navegation/Services/AdminService';
+import { AdminHorariosService, AdminDoctoresService } from '../../Src/Navegation/Services/AdminService';
+import PickerComponent from '../../components/PickerComponent';
 
 export default function AdminHorarios() {
   const [horarios, setHorarios] = useState([]);
@@ -20,6 +21,8 @@ export default function AdminHorarios() {
   const [refreshing, setRefreshing] = useState(false);
   const [searchText, setSearchText] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
+  const [doctores, setDoctores] = useState([]);
+  const [loadingDoctores, setLoadingDoctores] = useState(false);
   const [formData, setFormData] = useState({
     doctor_id: '',
     dia_semana: 'lunes',
@@ -50,10 +53,39 @@ export default function AdminHorarios() {
     }
   };
 
-  // Cargar horarios al montar el componente
+  // Cargar horarios y doctores al montar el componente
   useEffect(() => {
     cargarHorarios();
+    cargarDoctores();
   }, []);
+
+  // Cargar doctores
+  const cargarDoctores = async () => {
+    try {
+      setLoadingDoctores(true);
+      console.log("🔄 AdminHorarios: Cargando doctores");
+      const response = await AdminDoctoresService.listarDoctores();
+
+      if (response.success) {
+        // Formatear doctores para el picker
+        const doctoresFormateados = Array.isArray(response.data) ? response.data.map(doctor => ({
+          id: doctor.id,
+          nombre: `${doctor.nombre} ${doctor.apellido}`,
+          especialidad: doctor.especialidad?.nombre || 'Sin especialidad'
+        })) : [];
+        setDoctores(doctoresFormateados);
+        console.log("✅ AdminHorarios: Doctores cargados exitosamente");
+      } else {
+        Alert.alert("Error", response.message);
+        setDoctores([]);
+      }
+    } catch (error) {
+      console.error("❌ AdminHorarios: Error cargando doctores:", error);
+      Alert.alert("Error", "Error al cargar doctores");
+    } finally {
+      setLoadingDoctores(false);
+    }
+  };
 
   // Función para refrescar datos
   const onRefresh = () => {
@@ -148,20 +180,26 @@ export default function AdminHorarios() {
   };
 
   // Renderizar item de horario
-  const renderHorario = ({ item }) => (
-    <View style={styles.horarioItem}>
-      <View style={styles.horarioInfo}>
-        <Text style={styles.horarioDia}>Día: {item.dia_semana}</Text>
-        <Text style={styles.horarioHora}>{item.hora_inicio} - {item.hora_fin}</Text>
-        <Text style={styles.horarioDoctor}>Doctor ID: {item.doctor_id}</Text>
-        <View style={[styles.estadoBadge, item.estado === 'activo' ? styles.estadoActivo : styles.estadoInactivo]}>
-          <Text style={[styles.estadoText, item.estado === 'activo' ? styles.estadoTextActivo : styles.estadoTextInactivo]}>
-            {item.estado || 'activo'}
-          </Text>
+  const renderHorario = ({ item }) => {
+    // Encontrar el nombre del doctor
+    const doctor = doctores.find(d => d.id === item.doctor_id);
+    const doctorNombre = doctor ? doctor.nombre : `Doctor ID: ${item.doctor_id}`;
+
+    return (
+      <View style={styles.horarioItem}>
+        <View style={styles.horarioInfo}>
+          <Text style={styles.horarioDia}>Día: {item.dia_semana}</Text>
+          <Text style={styles.horarioHora}>{item.hora_inicio} - {item.hora_fin}</Text>
+          <Text style={styles.horarioDoctor}>{doctorNombre}</Text>
+          <View style={[styles.estadoBadge, item.estado === 'activo' ? styles.estadoActivo : styles.estadoInactivo]}>
+            <Text style={[styles.estadoText, item.estado === 'activo' ? styles.estadoTextActivo : styles.estadoTextInactivo]}>
+              {item.estado || 'activo'}
+            </Text>
+          </View>
         </View>
       </View>
-    </View>
-  );
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -226,16 +264,16 @@ export default function AdminHorarios() {
 
           <ScrollView style={styles.modalContent}>
             <View style={styles.form}>
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>Doctor ID *</Text>
-                <TextInput
-                  style={styles.input}
-                  value={formData.doctor_id}
-                  onChangeText={(text) => setFormData({...formData, doctor_id: text})}
-                  placeholder="Ingrese el ID del doctor"
-                  keyboardType="numeric"
-                />
-              </View>
+              <PickerComponent
+                label="Doctor *"
+                placeholder="Seleccione un doctor"
+                value={formData.doctor_id}
+                onValueChange={(value) => setFormData({...formData, doctor_id: value})}
+                items={doctores}
+                displayKey="nombre"
+                valueKey="id"
+                showEspecialidad={true}
+              />
 
               <View style={styles.inputGroup}>
                 <Text style={styles.label}>Día de la Semana</Text>

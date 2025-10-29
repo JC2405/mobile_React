@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import LogoutComponent from '../../components/LogoutComponent';
 import {
@@ -92,12 +93,12 @@ export default function AdminHome({ navigation }) {
   );
 
   return (
-    <ScrollView
-      style={styles.container}
-      refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-      }
-    >
+    <SafeAreaView style={styles.container} edges={['top']}>
+      <ScrollView
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.title}>Panel de Administración</Text>
@@ -201,7 +202,13 @@ export default function AdminHome({ navigation }) {
           <Text style={styles.accionButtonText}>Crear Especialidad</Text>
         </TouchableOpacity>
       </View>
+
+      {/* Botón de Cerrar Sesión */}
+      <View style={styles.logoutSection}>
+        <LogoutComponent navigation={navigation} />
+      </View>
     </ScrollView>
+   </SafeAreaView>
   );
 }
 
@@ -297,5 +304,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     marginLeft: 10,
+  },
+  logoutSection: {
+    padding: 20,
+    paddingTop: 10,
   },
 });
