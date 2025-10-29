@@ -33,22 +33,12 @@ export default function LogoutComponent({ navigation, style, textStyle, iconColo
               console.log("✅ LogoutComponent: Contexto local limpiado");
 
               console.log("✅ LogoutComponent: Sesión cerrada exitosamente");
-
-              // Navegar al login
-              navigation.reset({
-                index: 0,
-                routes: [{ name: 'Login' }],
-              });
             } catch (error) {
               console.error("❌ LogoutComponent: Error cerrando sesión:", error);
               console.error("❌ LogoutComponent: Error details:", error.response?.data || error.message);
               // Aún así, limpiar sesión local y navegar
               console.log("🔄 LogoutComponent: Limpiando contexto local por error");
               await logout();
-              navigation.reset({
-                index: 0,
-                routes: [{ name: 'Login' }],
-              });
             }
           }
         }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   StyleSheet,
   Text,
@@ -18,21 +18,26 @@ import {
   obtenerHorariosDisponibles
 } from "../../Src/Navegation/Services/CitasService";
 import api from "../../Src/Navegation/Services/Conexion";
+import { AuthContext } from "../../Src/Navegation/AuthContext";
 
 export default function CrearCita({ navigation }) {
+  const { user } = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
   const [especialidades, setEspecialidades] = useState([]);
   const [doctores, setDoctores] = useState([]);
   const [loadingData, setLoadingData] = useState(true);
 
   const [formData, setFormData] = useState({
-    paciente_id: "1", // Por ahora usamos un paciente de prueba
+    paciente_id: user?.id || "", // Usar el ID del usuario autenticado
     doctor_id: "",
     fecha_hora: "",
     estado: "pendiente",
     observaciones: "",
     cubiculo_id: "",
   });
+
+  console.log("🔍 DEBUG - CrearCita: Usuario autenticado:", user);
+  console.log("🔍 DEBUG - CrearCita: paciente_id en formData:", formData.paciente_id);
 
   const [horariosDisponibles, setHorariosDisponibles] = useState([]);
 
@@ -160,10 +165,17 @@ export default function CrearCita({ navigation }) {
       return;
     }
 
+    // Validar que el paciente_id esté disponible
+    if (!formData.paciente_id) {
+      Alert.alert("Error", "No se pudo identificar al paciente. Por favor, inicie sesión nuevamente.");
+      return;
+    }
+
     setLoading(true);
     try {
       console.log("🔄 Creando cita con datos:", formData);
       console.log("🔍 cubiculo_id en formData:", formData.cubiculo_id);
+      console.log("🔍 paciente_id en formData:", formData.paciente_id);
       const result = await crearCita(formData);
 
       if (result.success) {
@@ -175,7 +187,7 @@ export default function CrearCita({ navigation }) {
               text: "OK",
               onPress: () => {
                 // Navegar a la pestaña de Citas y refrescar
-                navigation.navigate('Citas');
+                navigation.navigate('Citas', { refresh: true });
               },
             },
           ]

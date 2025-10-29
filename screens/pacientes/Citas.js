@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   StyleSheet,
   Text,
@@ -9,25 +9,29 @@ import {
   RefreshControl,
 } from "react-native";
 import { obtenerCitasPorPaciente } from "../../Src/Navegation/Services/CitasService";
+import { AuthContext } from "../../Src/Navegation/AuthContext";
 
-export default function Citas({ navigation }) {
+export default function Citas({ navigation, route }) {
+  const { user } = useContext(AuthContext);
   const [citas, setCitas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
-  // Por ahora usamos un paciente de prueba (ID: 1)
-  // En una implementación real, esto vendría del contexto de usuario
-  const pacienteId = 1;
+  // Usar el ID del usuario autenticado
+  const pacienteId = user?.id || 1; // Fallback a 1 si no hay usuario
 
   const cargarCitas = async () => {
     try {
       console.log("🔄 Cargando citas para paciente:", pacienteId);
+      console.log("🔍 DEBUG - Citas: Usuario actual:", user);
       const result = await obtenerCitasPorPaciente(pacienteId);
 
       if (result.success) {
         setCitas(result.citas);
         console.log("✅ Citas cargadas:", result.citas.length);
+        console.log("📋 Citas data:", result.citas);
       } else {
+        console.log("❌ Error en respuesta:", result.message);
         Alert.alert("Error", result.message);
       }
     } catch (error) {
@@ -52,6 +56,17 @@ export default function Citas({ navigation }) {
     // Cleanup del listener
     return unsubscribe;
   }, [navigation]);
+
+  // Efecto para manejar el parámetro refresh de la navegación
+  useEffect(() => {
+    if (route?.params?.refresh) {
+      console.log("🔄 Refrescando citas después de crear una nueva...");
+      setLoading(true);
+      cargarCitas();
+      // Limpiar el parámetro para evitar refrescos innecesarios
+      navigation.setParams({ refresh: undefined });
+    }
+  }, [route?.params?.refresh, navigation]);
 
   const onRefresh = () => {
     setRefreshing(true);

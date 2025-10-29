@@ -31,7 +31,7 @@ const api = axios.create({
   },
 });
 
-const rutasPublicas = ["/login", "/crearUsuarioPaciente", "/logout"];
+const rutasPublicas = ["/login", "/crearUsuarioPaciente", "/logout", "/eps/activas/list"];
 
 api.interceptors.request.use(
   async (config) => {

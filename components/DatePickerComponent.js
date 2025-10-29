@@ -17,7 +17,13 @@ export default function DatePickerComponent({
   maximumDate,
 }) {
   const [show, setShow] = useState(false);
-  const [date, setDate] = useState(value ? new Date(value) : new Date());
+  const [date, setDate] = useState(() => {
+    if (value) {
+      const [year, month, day] = value.split('-').map(Number);
+      return new Date(year, month - 1, day, 12, 0, 0, 0); // Set to noon to avoid timezone issues
+    }
+    return new Date();
+  });
 
   const onChangeDate = (event, selectedDate) => {
     const currentDate = selectedDate || date;
@@ -25,8 +31,11 @@ export default function DatePickerComponent({
     setShow(Platform.OS === 'ios'); // En iOS mantener abierto, en Android cerrar
     if (selectedDate) {
       setDate(currentDate);
-      // Formatear fecha como YYYY-MM-DD
-      const formattedDate = currentDate.toISOString().split('T')[0];
+      // Formatear fecha como YYYY-MM-DD usando partes locales para evitar timezone offset
+      const year = currentDate.getFullYear();
+      const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+      const day = String(currentDate.getDate()).padStart(2, '0');
+      const formattedDate = `${year}-${month}-${day}`;
       onChange(formattedDate);
     }
   };
@@ -38,7 +47,8 @@ export default function DatePickerComponent({
   const formatDate = (dateString) => {
     if (!dateString) return placeholder;
     try {
-      const date = new Date(dateString);
+      const [year, month, day] = dateString.split('-').map(Number);
+      const date = new Date(year, month - 1, day, 12, 0, 0, 0); // Set to noon to avoid timezone issues
       return date.toLocaleDateString('es-ES', {
         weekday: 'long',
         year: 'numeric',

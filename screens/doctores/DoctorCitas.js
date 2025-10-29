@@ -4,7 +4,6 @@ import {
   Text,
   StyleSheet,
   FlatList,
-  TouchableOpacity,
   RefreshControl,
   Alert,
 } from 'react-native';
@@ -53,24 +52,6 @@ export default function DoctorCitas() {
     cargarCitas();
   };
 
-  const cambiarEstadoCita = async (citaId, nuevoEstado) => {
-    try {
-      console.log("🔄 Cambiando estado de cita:", citaId, "a", nuevoEstado);
-      const response = await DoctorService.cambiarEstadoCita(citaId, { estado: nuevoEstado });
-
-      if (response.success) {
-        console.log("✅ Estado de cita cambiado exitosamente");
-        Alert.alert("Éxito", `Cita ${nuevoEstado === 'completada' ? 'completada' : 'cancelada'} exitosamente`);
-        cargarCitas(); // Recargar lista
-      } else {
-        console.error("❌ Error en respuesta:", response.message);
-        Alert.alert("Error", response.message || "Error al cambiar estado de la cita");
-      }
-    } catch (error) {
-      console.error("❌ Error cambiando estado:", error);
-      Alert.alert("Error", "Error al cambiar el estado de la cita");
-    }
-  };
 
   const formatDateTime = (fechaHora) => {
     const date = new Date(fechaHora);
@@ -113,24 +94,6 @@ export default function DoctorCitas() {
           </Text>
           {item.cubiculo && (
             <Text style={styles.cubiculoInfo}>Consultorio: {item.cubiculo.nombre || item.cubiculo.id}</Text>
-          )}
-        </View>
-        <View style={styles.citaAcciones}>
-          {(item.estado === 'pendiente' || item.estado === 'confirmada') && (
-            <>
-              <TouchableOpacity
-                style={[styles.actionButton, styles.completarButton]}
-                onPress={() => cambiarEstadoCita(item.id, 'completada')}
-              >
-                <Ionicons name="checkmark" size={16} color="#fff" />
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.actionButton, styles.cancelarButton]}
-                onPress={() => cambiarEstadoCita(item.id, 'cancelada')}
-              >
-                <Ionicons name="close" size={16} color="#fff" />
-              </TouchableOpacity>
-            </>
           )}
         </View>
       </View>
@@ -196,9 +159,6 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
@@ -228,22 +188,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#64748b',
     marginTop: 2,
-  },
-  citaAcciones: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  actionButton: {
-    padding: 8,
-    borderRadius: 6,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  completarButton: {
-    backgroundColor: '#10B981',
-  },
-  cancelarButton: {
-    backgroundColor: '#EF4444',
   },
   emptyContainer: {
     flex: 1,

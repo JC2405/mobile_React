@@ -96,6 +96,7 @@ export const registerUser = async (userData) => {
         return {
             success: false,
             message: e.response ? e.response.data.message || "Error al registrar usuario" : "Error de conexión",
+            errors: e.response ? e.response.data.errors : null
         };
     }
 };
